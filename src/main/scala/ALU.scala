@@ -3,8 +3,8 @@ import chisel3.util._
 
 class ALUFields extends Bundle{
   val opcode = UInt(7.W)
-  val data1 = SInt(5.W)
-  val data2 = SInt(5.W)
+  val data1 = SInt(32.W)
+  val data2 = SInt(32.W)
   val funct3 = UInt(3.W)
   val funct7 = UInt(7.W)
   val imm = SInt(32.W)
@@ -14,8 +14,12 @@ class ALU extends Module{
   val io = IO(new Bundle{
     val input = Input(new ALUFields())
     val result = Output(SInt(32.W))
+    val check = Output(Bool())
     val imm = Output(SInt(32.W))
   })
+
+  // Error Code
+  val ERROR = -999999.S
 
   // Instruction Types
   val R_Type = "b0110011".U     // Arithmetic/Logic
@@ -26,120 +30,147 @@ class ALU extends Module{
   val S_Type = "b0100011".U     // Store
   val B_Type = "b1100011".U     // Branch
   val J_Type = "b1101111".U     // jal
-  val U_Type = "b0110111".U     // lui and auipc
+  val U_Type_1 = "b0110111".U   // lui
+  val U_Type_2 = "b0010111".U   // auipc
+
+
+  // Predefine values for readability
+  val funct7_type00 = io.input.funct7 === "0x00".U
+  val funct7_type20 = io.input.funct7 === "0x20".U
+  val a = WireDefault(0.S(32.W))
+  val b = WireDefault(0.S(32.W))
 
   switch(io.input.opcode) {
-    is(R_Type) {
+    is(R_Type, I_Type_1) {
+      val ADD_SUB = "0x0".U
+      val XOR = "0x4".U
+      val OR = "0x6".U
+      val AND = "0x7".U
+      val SHIFT_LEFT = "0x1".U
+      val SHIFT_RIGHT = "0x5".U
+      val SLT = "0x2".U
+      val SLTU = "0x3".U
+
+      // Assign input values
+      when(io.input.opcode === R_Type){
+        a := io.input.data1
+        b := io.input.data2
+      } .elsewhen(io.input.opcode === I_Type_1) {
+        a := io.input.data1
+        b := io.input.imm
+      }
+
+      // Perform calculations
       switch(io.input.funct3) {
-        is("0x0".U) {
-          switch(io.input.funct7) {
-            is("0x00".U) { //ADD
-              io.result := io.input.data1 + io.input.data2
-            }
-            is("0x20".U) { //SUB
-              io.result := io.input.data1 - io.input.data2
-            }
+        is(ADD_SUB) {
+          when(funct7_type00) { // ADD
+            io.result := a + b
+          } .elsewhen(funct7_type20) { // SUB
+            io.result := a - b
+          } .otherwise {
+            io.result := ERROR
           }
         }
-        is("0x4".U) {
-          switch(io.input.funct7) {
-            is("0x00".U) { //XOR
-              io.result := io.input.data1 ^ io.input.data2
-            }
+        is(XOR) {
+          when(funct7_type00) { //XOR
+            io.result := a ^ b
+          } .otherwise {
+            io.result := ERROR
           }
         }
-        is("0x6".U) {
-          switch(io.input.funct7) {
-            is("0x00".U) { //OR
-              io.result := io.input.data1 | io.input.data2
-            }
+        is(OR) {
+          when(funct7_type00) {
+            io.result := a | b
+          } .otherwise {
+            io.result := ERROR
           }
         }
-        is("0x7".U) {
-          switch(io.input.funct7) {
-            is("0x00".U) { //AND
-              io.result := io.input.data1 & io.input.data2
-            }
+        is(AND) {
+          when(funct7_type00) {
+            io.result := a & b
+          } .otherwise {
+            io.result := ERROR
           }
         }
-        is("0x1".U) {
-          switch(io.input.funct7) {
-            is("0x00".U) { //Left-Shift
-              io.result := io.input.data1 << io.input.data2
-            }
+        is(SHIFT_LEFT) {
+          when(funct7_type00) {
+            io.result := a << b
+          } .otherwise {
+            io.result := ERROR
           }
         }
-        is("0x5".U) {
-          switch(io.input.funct7) {
-            is("0x00".U) { //Right-Shift
-              io.result := (io.input.data1.asUInt >> io.input.data2.asUInt).asSInt
-            }
-            is("0x20".U) { //Right-Shift (Arithmetic)
-              io.result := io.input.data1 >> io.input.data2
-            }
+        is(SHIFT_RIGHT) {
+          when(funct7_type00) {
+            io.result := (a.asUInt >> b.asUInt).asSInt
+          } .elsewhen(funct7_type20) {
+            io.result := a >> b
+          } .otherwise {
+            io.result := ERROR
           }
         }
-        is("0x2".U) {
-          switch(io.input.funct7) {
-            is("0x00".U) { //Set Less Than
-              io.result := Mux(io.input.data1 < io.input.data2, 1.S(32.W), 0.S(32.W))
-            }
+        is(SLT) {
+          when(funct7_type00) {
+            io.result := Mux(a < b, 1.S(32.W), 0.S(32.W))
+          } .otherwise {
+            io.result := ERROR
           }
         }
-        is("0x3".U) {
-          switch(io.input.funct7) {
-            is("0x00".U) { //Set Less Than (Unsigned)
-              io.result := Mux(io.input.data1.asUInt < io.input.data2.asUInt, 1.S(32.W), 0.S(32.W))
-            }
+        is(SLTU) {
+          when(funct7_type00) {
+            io.result := Mux(a.asUInt < b.asUInt, 1.S(32.W), 0.S(32.W))
+          } .otherwise {
+            io.result := ERROR
           }
         }
       }
     }
 
-    is(I_Type_1, I_Type_2, I_Type_3, I_Type_4) {
-      switch(io.input.funct3) {
-        is("0x0".U) { //ADD Immediate
-          io.result := io.input.data1 + io.input.imm
-        }
-        is("0x4".U) { //XOR Immediate
-          io.result := io.input.data1 ^ io.input.imm
-        }
-        is("0x6".U) { //OR Immediate
-          io.result := io.input.data1 | io.input.imm
-        }
-        is("0x7".U) { //AND Immediate
-          io.result := io.input.data1 & io.input.imm
-        }
-        is("0x1".U) { //Shift Left Logical Imm
-          io.result := io.input.data1 << io.input.imm(4, 0)
-          io.imm := Cat(("0x00".U(7.W)) + io.input.imm(4, 0))
-        }
-        is("0x5".U) {
-          io.result := 0.S
-        }
-        is("0x2".U) {
-          io.result := 0.S
-        }
-        is("0x3".U) {
-          io.result := 0.S
-        }
-      }
+    is(I_Type_2, I_Type_3, S_Type) {
+      io.result := io.input.data1 + io.input.imm
     }
 
-    is(S_Type) {
-      switch(io.input.funct3) {
-
-      }
+    is(I_Type_4) {
+      // ecall/ebreak
     }
+
 
     is(B_Type) {
-      switch(io.input.funct3) {
+      val BEQ = "x0".U
+      val BNE = "x1".U
+      val BLT = "x4".U
+      val BGE = "x5".U
+      val BLTU = "x6".U
+      val BGEU = "x7".U
 
+      a := io.input.data1
+      b := io.input.data2
+
+      switch(io.input.funct3) {
+        is(BEQ) {
+          io.check := a === b
+        }
+        is(BNE) {
+          io.check := a !== b
+        }
+        is(BLT) {
+          io.check := a < b
+        }
+        is(BGE) {
+          io.check := a >= b
+        }
+        is(BLTU) {
+          io.check := a.asUInt < b.asUInt
+        }
+        is(BGEU) {
+          io.check := a.asUInt >= b.asUInt
+        }
       }
     }
 
-    is(U_Type) {
+    is(U_Type_1, U_Type_2) {
+      a := io.input.imm
 
+      io.result := a << 12
     }
 
     is(J_Type) {
