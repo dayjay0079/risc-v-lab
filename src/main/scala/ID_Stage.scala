@@ -1,0 +1,3 @@
+class ID_Stage {
+
+}

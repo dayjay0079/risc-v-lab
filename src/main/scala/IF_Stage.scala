@@ -1,0 +1,3 @@
+class IF_Stage {
+
+}

@@ -1,0 +1,3 @@
+class WB_Stage {
+
+}
