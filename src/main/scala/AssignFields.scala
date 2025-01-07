@@ -8,7 +8,7 @@ class InstructionFields extends Bundle{
   val rd = UInt(5.W)
   val funct3 = UInt(3.W)
   val funct7 = UInt(7.W)
-  val imm = UInt(32.W)
+  val imm = SInt(32.W)
 }
 
 class AssignFields extends Module{
@@ -27,7 +27,7 @@ class AssignFields extends Module{
   io.output.rd := io.instruction(11, 7)
   io.output.funct3 := io.instruction(14, 12)
   io.output.funct7 := io.instruction(31, 25)
-  io.output.imm := 0.U
+  io.output.imm := 0.S
 
 
   // Instruction Types
@@ -49,25 +49,25 @@ class AssignFields extends Module{
     }
 
     is(I_Type_1, I_Type_2, I_Type_3, I_Type_4) {
-      io.output.imm := io.instruction(31, 20)
+      io.output.imm := (io.instruction(31, 20)).asSInt
     }
 
     is(S_Type) {
-      io.output.imm := Cat(io.instruction(31, 25), io.instruction(11, 7))
+      io.output.imm := (Cat(io.instruction(31, 25), io.instruction(11, 7))).asSInt
     }
 
     is(B_Type) {
-      io.output.imm := Cat(io.instruction(31), io.instruction(7),
-                           io.instruction(30, 25), io.instruction(11, 8), 0.U(1.W))
+      io.output.imm := (Cat(io.instruction(31), io.instruction(7),
+                           io.instruction(30, 25), io.instruction(11, 8), 0.U(1.W))).asSInt
     }
 
     is(U_Type) {
-      io.output.imm := Cat(io.instruction(31, 12), 0.U(12.W))
+      io.output.imm := (Cat(io.instruction(31, 12), 0.U(12.W))).asSInt
     }
 
     is(J_Type) {
-      io.output.imm := Cat(io.instruction(31), io.instruction(19, 12),
-                           io.instruction(20), io.instruction(30, 21), 0.U(1.W))
+      io.output.imm := (Cat(io.instruction(31), io.instruction(19, 12),
+                           io.instruction(20), io.instruction(30, 21), 0.U(1.W))).asSInt
     }
   }
 }

@@ -32,15 +32,15 @@ class InstructionTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.output.rd.expect(1.U)              // destination register x1
       dut.io.output.rs1.expect(0.U)             // addition register x0
       dut.io.output.funct3.expect("x0".U)       // "ADDI" function
-      dut.io.output.imm.expect(5.U)             // addition value
+      dut.io.output.imm.expect(5.S)             // addition value
 
       // Testing S-Type Instruction
       dut.io.instruction.poke(S_INSTRUCTION)
       dut.io.output.opcode.expect("b0100011".U)
       dut.io.output.rs1.expect(2.U)             // address register x2
       dut.io.output.rs2.expect(1.U)             // destination register x1
-      dut.io.output.funct3.expect("x2".U)       // "Store Word" function
-      dut.io.output.imm.expect(0.U)             // offset-value = 0
+      dut.io.output.funct3.expect("x02".U)       // "Store Word" function
+      dut.io.output.imm.expect(0.S)             // offset-value = 0
 
 
       // Testing B-Type Instruction
@@ -49,19 +49,19 @@ class InstructionTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.output.rs1.expect(1.U)             // source register x1
       dut.io.output.rs2.expect(2.U)             // source register x2
       dut.io.output.funct3.expect("x1".U)       // "Branch !=" function
-      dut.io.output.imm.expect("x80".U)         // Jump offset
+      dut.io.output.imm.expect(128.S)           // Jump offset "x80"
 
       // Testing U-Type Instruction
       dut.io.instruction.poke(U_INSTRUCTION)
       dut.io.output.opcode.expect("b0110111".U)
       dut.io.output.rd.expect("b10011".U)       // destination register x1
-      dut.io.output.imm.expect((976 << 12).U)   // imm = 976
+      dut.io.output.imm.expect((976 << 12).S)   // imm = 976
 
       // Testing J-Type Instruction
       dut.io.instruction.poke(J_INSTRUCTION)
       dut.io.output.opcode.expect("b1101111".U)
       dut.io.output.rd.expect(1.U)              // destination register x1
-      dut.io.output.imm.expect("x1250".U)       // Jump offset
+      dut.io.output.imm.expect(4688.S)          // Jump offset "x1250"
     }
   }
 }
