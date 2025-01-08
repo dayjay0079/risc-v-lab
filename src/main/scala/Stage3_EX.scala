@@ -1,3 +1,3 @@
-class EX_Stage {
+class Stage3_EX(fpga: Boolean) {
 
 }

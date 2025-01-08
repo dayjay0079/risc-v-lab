@@ -1,3 +1,3 @@
-class MEM_Stage {
+class Stage4_MEM(fpga: Boolean) {
 
 }

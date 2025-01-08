@@ -1,3 +1,3 @@
-class WB_Stage {
+class Stage5_WB(fpga: Boolean) {
 
 }
