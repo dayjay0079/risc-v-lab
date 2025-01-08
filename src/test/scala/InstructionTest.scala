@@ -1,6 +1,6 @@
-  import chisel3._
-  import chiseltest._
-  import org.scalatest.flatspec.AnyFlatSpec
+import chisel3._
+import chiseltest._
+import org.scalatest.flatspec.AnyFlatSpec
 
 class InstructionTest extends AnyFlatSpec with ChiselScalatestTester {
   val R_INSTRUCTION: UInt = "b00000000000000001000000010110011".U(32.W) //add  x1, x1, x0
@@ -62,6 +62,8 @@ class InstructionTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.output.opcode.expect("b1101111".U)
       dut.io.output.rd.expect(1.U)              // destination register x1
       dut.io.output.imm.expect(4688.S)          // Jump offset "x1250"
+
+
     }
   }
 }
