@@ -19,7 +19,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val funct3 = Output(UInt(3.W))
     val funct7 = Output(UInt(7.W))
   })
-
   val pipeline_regs = Reg(new PipelineValues)
   pipeline_regs := io.pipeline_vals
 
