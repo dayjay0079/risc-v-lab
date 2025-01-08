@@ -1,3 +1,0 @@
-class IF_Stage {
-
-}
