@@ -39,8 +39,8 @@ class Stage2_ID(fpga: Boolean) extends Module {
   // Output
   io.data_out1 := reg_file.io.data1
   io.data_out2 := reg_file.io.data2
-  io.imm := RegNext(decoder.io.output.imm)
-  io.rd_out := RegNext(decoder.io.output.rd)
-  io.ctrl := RegNext(ctrl)
+  io.imm := (decoder.io.output.imm)
+  io.rd_out := (decoder.io.output.rd)
+  io.ctrl := (ctrl)
   io.regs := reg_file.io.regs
 }

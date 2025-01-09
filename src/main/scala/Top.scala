@@ -1,6 +1,7 @@
 import chisel3._
 import chisel3.util._
 
+import lib.ReadAssembly
 import lib.peripherals.{MemoryMappedUart, StringStreamer}
 import lib.peripherals.MemoryMappedUart.UartPins
 
@@ -9,17 +10,19 @@ object Top extends App {
   val MEM_SIZE = 1024
   val FREQ = 50000000
   val BAUD = 9600
+  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/addi5.bin")
   emitVerilog(
-    new Top(FPGA, MEM_SIZE, FREQ, BAUD),
+    new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD),
     Array("--target-dir", "generated")
   )
 }
 
-class Top(fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
+class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
   val io = IO(new Bundle{
     val regs = Output(Vec(32, SInt(32.W)))
+    val pc = Output(UInt(32.W))
   })
-  val IF = Module(new Stage1_IF(fpga))
+  val IF = Module(new Stage1_IF(program, fpga))
   val ID = Module(new Stage2_ID(fpga))
   val EX = Module(new Stage3_EX(fpga))
   val MEM = Module(new Stage4_MEM(fpga, mem_size))
@@ -53,5 +56,6 @@ class Top(fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
   WB.io.pipeline_vals.ctrl := MEM.io.ctrl
 
   // Output for testing
+  io.pc := IF.io.pc
   io.regs := ID.io.regs
 }
