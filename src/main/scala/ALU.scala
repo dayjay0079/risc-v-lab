@@ -18,6 +18,11 @@ class ALU extends Module{
     val imm = Output(SInt(32.W))
   })
 
+  // Initialize outputs
+  io.result := 0.S
+  io.check := 0.B
+  io.imm := 0.S
+
   // Error Code
   val ERROR = -999999.S
 
@@ -35,30 +40,25 @@ class ALU extends Module{
 
 
   // Predefine values for readability
-  val funct7_type00 = io.input.funct7 === "0x00".U
-  val funct7_type20 = io.input.funct7 === "0x20".U
+  val funct7_type00 = io.input.funct7 === "x00".U
+  val funct7_type20 = io.input.funct7 === "x20".U
   val a = WireDefault(0.S(32.W))
   val b = WireDefault(0.S(32.W))
 
   switch(io.input.opcode) {
-    is(R_Type, I_Type_1) {
-      val ADD_SUB = "0x0".U
-      val XOR = "0x4".U
-      val OR = "0x6".U
-      val AND = "0x7".U
-      val SHIFT_LEFT = "0x1".U
-      val SHIFT_RIGHT = "0x5".U
-      val SLT = "0x2".U
-      val SLTU = "0x3".U
+    is(R_Type) {
+      val ADD_SUB = "x0".U
+      val XOR = "x4".U
+      val OR = "x6".U
+      val AND = "x7".U
+      val SHIFT_LEFT = "x1".U
+      val SHIFT_RIGHT = "x5".U
+      val SLT = "x2".U
+      val SLTU = "x3".U
 
       // Assign input values
-      when(io.input.opcode === R_Type){
-        a := io.input.data1
-        b := io.input.data2
-      } .elsewhen(io.input.opcode === I_Type_1) {
-        a := io.input.data1
-        b := io.input.imm
-      }
+      a := io.input.data1
+      b := io.input.data2
 
       // Perform calculations
       switch(io.input.funct3) {
@@ -94,7 +94,7 @@ class ALU extends Module{
         }
         is(SHIFT_LEFT) {
           when(funct7_type00) {
-            io.result := a << b
+            io.result := Mux(b >= 32.S, 0.S, a << b(4,0).asUInt)
           } .otherwise {
             io.result := ERROR
           }
@@ -103,7 +103,7 @@ class ALU extends Module{
           when(funct7_type00) {
             io.result := (a.asUInt >> b.asUInt).asSInt
           } .elsewhen(funct7_type20) {
-            io.result := a >> b
+            io.result := a >> b.asUInt
           } .otherwise {
             io.result := ERROR
           }
@@ -121,6 +121,59 @@ class ALU extends Module{
           } .otherwise {
             io.result := ERROR
           }
+        }
+      }
+    }
+
+    is(I_Type_1) {
+      val ADD_SUB = "x0".U
+      val XOR = "x4".U
+      val OR = "x6".U
+      val AND = "x7".U
+      val SHIFT_LEFT = "x1".U
+      val SHIFT_RIGHT = "x5".U
+      val SLT = "x2".U
+      val SLTU = "x3".U
+
+      // Assign input values
+      a := io.input.data1
+      b := io.input.imm
+
+      // Perform calculations
+      switch(io.input.funct3) {
+        is(ADD_SUB) {
+          io.result := a + b
+        }
+        is(XOR) {
+          io.result := a ^ b
+        }
+        is(OR) {
+          io.result := a | b
+        }
+        is(AND) {
+          io.result := a & b
+        }
+        is(SHIFT_LEFT) {
+          when(b(11, 5) === "x00".U) {
+            io.result := Mux(b >= 32.S, 0.S, a << b(4,0).asUInt)
+          } .otherwise {
+            io.result := ERROR
+          }
+        }
+        is(SHIFT_RIGHT) {
+          when(b(11, 5) === "x00".U) {
+            io.result := (a.asUInt >> b.asUInt).asSInt
+          } .elsewhen(b(11, 5) === "x20".U) {
+            io.result := a >> b.asUInt
+          } .otherwise {
+            io.result := ERROR
+          }
+        }
+        is(SLT) {
+          io.result := Mux(a < b, 1.S(32.W), 0.S(32.W))
+        }
+        is(SLTU) {
+          io.result := Mux(a.asUInt < b.asUInt, 1.S(32.W), 0.S(32.W))
         }
       }
     }
@@ -150,7 +203,7 @@ class ALU extends Module{
           io.check := a === b
         }
         is(BNE) {
-          io.check := a !== b
+          io.check := a =/= b
         }
         is(BLT) {
           io.check := a < b
@@ -174,7 +227,7 @@ class ALU extends Module{
     }
 
     is(J_Type) {
-
+      // JUMP AND LINK
     }
   }
 }
