@@ -2,7 +2,7 @@ import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
-class BTypeTest extends AnyFlatSpec with ChiselScalatestTester {
+class ALUTest_BType extends AnyFlatSpec with ChiselScalatestTester {
   val B_Type = "b1100011".U     // Branch
 
   val testType = B_Type

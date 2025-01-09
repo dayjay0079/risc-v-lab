@@ -2,7 +2,7 @@ import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
-class InstructionTest extends AnyFlatSpec with ChiselScalatestTester {
+class AssignFieldsTest extends AnyFlatSpec with ChiselScalatestTester {
   val R_INSTRUCTION: UInt = "b00000000000000001000000010110011".U(32.W) //add  x1, x1, x0
 
   val I_INSTRUCTION: UInt = "b00000000010100000000000010010011".U(32.W) //addi x1, x0, 5

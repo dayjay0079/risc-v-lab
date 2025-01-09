@@ -2,7 +2,7 @@ import chisel3._
 import chiseltest._
 import org.scalatest.flatspec.AnyFlatSpec
 
-class ITypeTest extends AnyFlatSpec with ChiselScalatestTester {
+class ALUTest_IType extends AnyFlatSpec with ChiselScalatestTester {
   val I_Type_1 = "b0010011".U   // Arithmetic/Logic immediate
   val I_Type_2 = "b0000011".U   // Load
   val I_Type_3 = "b1100111".U   // jalr
