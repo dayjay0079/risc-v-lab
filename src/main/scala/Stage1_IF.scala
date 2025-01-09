@@ -8,7 +8,7 @@ class Stage1_IF(fpga: Boolean) extends Module {
     val instruction = Output(UInt(32.W))
   })
 
-  val im = new MemoryInstruction(fpga)
+  val im = Module(new MemoryInstruction(fpga))
   val pc_reg = RegInit(-4.S(32.W))
   val pc = Mux(io.jump, (pc_reg + io.jump_offset).asUInt, (pc_reg + 4.S).asUInt)
 

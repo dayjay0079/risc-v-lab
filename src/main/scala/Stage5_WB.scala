@@ -2,7 +2,7 @@ import chisel3._
 import chisel3.util._
 import lib.ControlBus
 
-private class PipelineValuesWB extends Bundle {
+class PipelineValuesWB extends Bundle {
   val data_in = SInt(32.W)
   val rd = UInt(5.W)
   val ctrl = new ControlBus

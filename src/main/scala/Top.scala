@@ -17,13 +17,13 @@ object Top extends App {
 
 class Top(fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
   val io = IO(new Bundle{
-
+    val regs = Output(Vec(32, SInt(32.W)))
   })
-  val IF = new Stage1_IF(fpga)
-  val ID = new Stage2_ID(fpga)
-  val EX = new Stage3_EX(fpga)
-  val MEM = new Stage4_MEM(fpga, mem_size)
-  val WB = new Stage5_WB(fpga)
+  val IF = Module(new Stage1_IF(fpga))
+  val ID = Module(new Stage2_ID(fpga))
+  val EX = Module(new Stage3_EX(fpga))
+  val MEM = Module(new Stage4_MEM(fpga, mem_size))
+  val WB = Module(new Stage5_WB(fpga))
 
   // Stage 1: Instruction Fetch
   IF.io.jump := false.B
@@ -51,4 +51,7 @@ class Top(fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
   WB.io.pipeline_vals.data_in := MEM.io.data_out
   WB.io.pipeline_vals.rd := MEM.io.rd
   WB.io.pipeline_vals.ctrl := MEM.io.ctrl
+
+  // Output for testing
+  io.regs := ID.io.regs
 }

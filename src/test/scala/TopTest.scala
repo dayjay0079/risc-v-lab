@@ -9,7 +9,7 @@ class TopTest extends AnyFlatSpec with ChiselScalatestTester {
     val FREQ = 50000000
     val BAUD = 9600
     test(new Top(FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      dut.clock.step(10)
+      dut.clock.step(100)
     }
   }
 }

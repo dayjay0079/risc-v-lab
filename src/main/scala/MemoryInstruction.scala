@@ -20,7 +20,7 @@ class MemoryInstruction(fpga: Boolean) extends Module {
   private val IM: AnyRef = if (fpga) {
     SyncReadMem(1024, UInt(32.W)) // Type: SyncReadMem
   } else {
-    RegInit(VecInit(Seq.fill(1024)("b00000000010100000000000010010011".U(32.W)))) // Type: Vec
+    RegInit(VecInit(Seq.fill(1024)("b00000000010100001000000010010011".U(32.W)))) // Type: Vec
   }
   
   // Example usage of readMemory
