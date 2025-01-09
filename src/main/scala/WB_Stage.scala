@@ -1,3 +1,0 @@
-class WB_Stage {
-
-}

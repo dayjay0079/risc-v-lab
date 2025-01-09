@@ -1,3 +1,0 @@
-class MEM_Stage {
-
-}

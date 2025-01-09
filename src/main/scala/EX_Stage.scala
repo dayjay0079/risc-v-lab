@@ -1,3 +1,0 @@
-class EX_Stage {
-
-}
