@@ -1,13 +1,10 @@
 import chisel3._
 import chisel3.util._
-
-private class PipelineValues extends Bundle {
-  val instruction = UInt(32.W)
-}
+import lib.ControlBus
 
 class Stage2_ID(fpga: Boolean) extends Module {
   val io = IO(new Bundle {
-    val pipeline_vals = Input(new PipelineValues)
+    val instruction = Input(UInt(32.W))
     val rd_in = Input(UInt(5.W))
     val data_in = Input(SInt(32.W))
     val write_enable = Input(Bool())
@@ -15,17 +12,20 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val data_out2 = Output(SInt(32.W))
     val imm = Output(SInt(32.W))
     val rd_out = Output(UInt(5.W))
-    val opcode = Output(UInt(7.W))
-    val funct3 = Output(UInt(3.W))
-    val funct7 = Output(UInt(7.W))
+    val ctrl = Output(new ControlBus)
   })
-  val pipeline_regs = Reg(new PipelineValues)
-  pipeline_regs := io.pipeline_vals
 
+  // Isolate instruction fields
   val decoder = new AssignFields()
-  decoder.io.instruction := pipeline_regs.instruction
+  decoder.io.instruction := io.instruction
 
-  // Read registers
+  // Bundle control values
+  val ctrl = Wire(new ControlBus)
+  ctrl.opcode := decoder.io.output.opcode
+  ctrl.funct3 := decoder.io.output.funct3
+  ctrl.funct7 := decoder.io.output.funct7
+
+  // Read from registers
   val reg_file = new RegisterFile(fpga)
   reg_file.io.rs1 := decoder.io.output.rs1
   reg_file.io.rs2 := decoder.io.output.rs2
@@ -40,7 +40,5 @@ class Stage2_ID(fpga: Boolean) extends Module {
   io.data_out2 := reg_file.io.data2
   io.imm := RegNext(decoder.io.output.imm)
   io.rd_out := RegNext(decoder.io.output.rd)
-  io.opcode := RegNext(decoder.io.output.opcode)
-  io.funct3 := RegNext(decoder.io.output.funct3)
-  io.funct7 := RegNext(decoder.io.output.funct7)
+  io.ctrl := RegNext(ctrl)
 }

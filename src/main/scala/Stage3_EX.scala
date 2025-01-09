@@ -1,34 +1,29 @@
 import chisel3._
 import chisel3.util._
+import lib.ControlBus
 
-private class PipelineValues extends Bundle {
-  val imm = UInt(32.W)
-  val rd = UInt(5.W)
-  val opcode = UInt(7.W)
-  val funct3 = UInt(3.W)
-  val funct7 = UInt(7.W)
+private class PipelineValuesEX extends Bundle {
   val data_in1 = SInt(32.W)
   val data_in2 = SInt(32.W)
+  val imm = UInt(32.W)
+  val rd = UInt(5.W)
+  val ctrl = new ControlBus
 }
 
 class Stage3_EX(fpga: Boolean) extends Module {
   val io = IO(new Bundle{
-    val pipeline_vals = Input(new PipelineValues)
+    val pipeline_vals = Input(new PipelineValuesEX)
     val data_out = Output(SInt(32.W))
     val rd = Output(UInt(5.W))
-    val opcode = Output(UInt(7.W))
-    val funct3 = Output(UInt(3.W))
-    val funct7 = Output(UInt(7.W))
+    val ctrl = Output(new ControlBus)
   })
 
   // Pipeline registers
-  val pipeline_regs = Reg(new PipelineValues)
+  val pipeline_regs = Reg(new PipelineValuesEX)
   pipeline_regs := io.pipeline_vals
 
   // Output
   io.data_out := pipeline_regs.data_in1 + pipeline_regs.imm // TEMP addi
   io.rd := pipeline_regs.rd
-  io.opcode := pipeline_regs.opcode
-  io.funct3 := pipeline_regs.funct3
-  io.funct7 := pipeline_regs.funct7
+  io.ctrl := pipeline_regs.ctrl
 }
