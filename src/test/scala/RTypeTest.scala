@@ -9,7 +9,7 @@ class RTypeTest extends AnyFlatSpec with ChiselScalatestTester {
   val testType = R_Type
 
   "Instruction test" should "pass" in {
-    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    test(new ALU_Control).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       //ADD
       dut.io.input.opcode.poke(testType)
       dut.io.input.funct3.poke("x0".U)

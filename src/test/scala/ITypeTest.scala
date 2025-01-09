@@ -11,7 +11,7 @@ class ITypeTest extends AnyFlatSpec with ChiselScalatestTester {
   val testType = I_Type_1
 
   "Instruction test" should "pass" in {
-    test(new ALU).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    test(new ALU_Control).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       //ADD
       dut.io.input.opcode.poke(testType)
       dut.io.input.funct3.poke("x0".U)
@@ -49,7 +49,7 @@ class ITypeTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.result.expect((12 << 3).S)
       //Test for overflow (shifted by 32 and above)
       dut.io.input.data1.poke(1.S)
-      dut.io.input.imm.poke(524288.S)
+      dut.io.input.imm.poke(64.S)
       dut.io.result.expect(0.S)
 
       //Shift Right Logical
@@ -60,11 +60,11 @@ class ITypeTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.result.expect(3.S) // 12 >> 2 = 3
 
       //Shift Right Logical (Arithmetic)
-      //dut.io.input.opcode.poke(testType)
-      //dut.io.input.funct3.poke("x5".U)
-      //dut.io.input.data1.poke(-24.S)
-      //dut.io.input.imm.poke(35.S)
-      //dut.io.result.expect(-3.S) // -24 >> 3 = -3
+      dut.io.input.opcode.poke(testType)
+      dut.io.input.funct3.poke("x5".U)
+      dut.io.input.data1.poke(-24.S)
+      dut.io.input.imm.poke((3 + 1024).S)
+      dut.io.result.expect(-3.S) // -24 >> 3 = -3
 
       //Set Less Than
       dut.io.input.opcode.poke(testType)
@@ -79,9 +79,6 @@ class ITypeTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.input.data1.poke(-12.S)
       dut.io.input.imm.poke(3.S)
       dut.io.result.expect(0.S) // (|data1| < |data2|)?1:0
-
-
-
 
       //Calculate index (All Load/Store Methods)
       dut.io.input.opcode.poke(I_Type_2)
