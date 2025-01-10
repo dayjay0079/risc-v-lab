@@ -16,3 +16,4 @@
 
 *.out
 *.bin
+!/assembly/*.bin
