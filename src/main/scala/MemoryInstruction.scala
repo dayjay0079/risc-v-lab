@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class MemoryInstruction(fpga: Boolean) extends Module {
+class MemoryInstruction(program: Seq[Int], fpga: Boolean) extends Module {
   val io = IO(new Bundle {
     val pc = Input(UInt(32.W))
     val instruction = Output(UInt(32.W))
@@ -10,9 +10,9 @@ class MemoryInstruction(fpga: Boolean) extends Module {
   // Define a method to handle unified memory access
   def readMemory(addr: UInt): UInt = {
     if (fpga) {
-      IM.asInstanceOf[SyncReadMem[UInt]].read(addr)
+      IM.asInstanceOf[SyncReadMem[UInt]].read((addr >> 2.U).asUInt)
     } else {
-      IM.asInstanceOf[Vec[UInt]](addr)
+      IM.asInstanceOf[Vec[UInt]]((addr >> 2.U).asUInt)
     }
   }
 
@@ -20,7 +20,7 @@ class MemoryInstruction(fpga: Boolean) extends Module {
   private val IM: AnyRef = if (fpga) {
     SyncReadMem(1024, UInt(32.W)) // Type: SyncReadMem
   } else {
-    RegInit(VecInit(Seq.fill(1024)("b00000000010100001000000010010011".U(32.W)))) // Type: Vec
+    RegInit(VecInit(program.map(_.asUInt(32.W)))) // Type: Vec
   }
   
   // Example usage of readMemory
