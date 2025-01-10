@@ -1,28 +1,28 @@
 import chisel3._
 import chisel3.util._
+import lib.ControlBus
 
 class ALUFields extends Bundle{
-  val opcode = UInt(7.W)
   val data1 = SInt(32.W)
   val data2 = SInt(32.W)
-  val funct3 = UInt(3.W)
-  val funct7 = UInt(7.W)
   val imm = SInt(32.W)
+  val rd = UInt(5.W)
+  val ctrl = new ControlBus
 }
 
 class ALU_Control extends Module{
   val io = IO(new Bundle{
-    val input = Input(new ALUFields())
+    val input = Input(new PipelineValuesEX())
     val result = Output(SInt(32.W))
     val check = Output(Bool())
   })
 
   //Input signal placeholders
-  val opcode = io.input.opcode
+  val opcode = io.input.ctrl.opcode
   val data1 = io.input.data1
   val data2 = io.input.data2
-  val funct3 = io.input.funct3
-  val funct7 = io.input.funct7
+  val funct3 = io.input.ctrl.funct3
+  val funct7 = io.input.ctrl.funct7
   val imm = io.input.imm
 
   //Enumeration of Instructions

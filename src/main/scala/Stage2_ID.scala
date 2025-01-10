@@ -8,12 +8,13 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val rd_in = Input(UInt(5.W))
     val data_in = Input(SInt(32.W))
     val write_enable = Input(Bool())
+
     val data_out1 = Output(SInt(32.W))
     val data_out2 = Output(SInt(32.W))
     val imm = Output(SInt(32.W))
     val rd_out = Output(UInt(5.W))
     val ctrl = Output(new ControlBus)
-    val regs = Output(Vec(32, SInt(32.W)))
+    val regs = Output(Vec(32, SInt(32.W))) // Only passed for debugging
   })
 
   // Isolate instruction fields

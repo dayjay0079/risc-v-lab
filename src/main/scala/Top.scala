@@ -39,8 +39,8 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   ID.io.write_enable := WB.io.write_enable
 
   // Stage 3: Execute operation/Calculate address
-  EX.io.pipeline_vals.data_in1 := ID.io.data_out1
-  EX.io.pipeline_vals.data_in2 := ID.io.data_out2
+  EX.io.pipeline_vals.data1 := ID.io.data_out1
+  EX.io.pipeline_vals.data2 := ID.io.data_out2
   EX.io.pipeline_vals.imm := ID.io.imm
   EX.io.pipeline_vals.rd := ID.io.rd_out
   EX.io.pipeline_vals.ctrl := ID.io.ctrl

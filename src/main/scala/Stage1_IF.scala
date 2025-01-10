@@ -6,7 +6,7 @@ class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
     val jump = Input(Bool())
     val jump_offset = Input(SInt(32.W))
     val instruction = Output(UInt(32.W))
-    val pc = Output(UInt(32.W))
+    val pc = Output(UInt(32.W)) // Only passed for debugging
   })
 
   // Initialize instruction memory with given program
