@@ -13,6 +13,7 @@ class ALUFields extends Bundle{
 class ALU_Control extends Module{
   val io = IO(new Bundle{
     val input = Input(new PipelineValuesEX())
+    //val instruction = Output(SInt(5.W))
     val result = Output(SInt(32.W))
     val check = Output(Bool())
   })

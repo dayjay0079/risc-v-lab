@@ -26,10 +26,9 @@ class Stage3_EX(fpga: Boolean) extends Module {
   val ALU = Module(new ALU_Control)
   ALU.io.input := pipeline_regs
 
-  //ALU.io.check
-
   // Output
   io.data_out := ALU.io.result
+  //io.check_out := ALU.io.check // For B-Type instructions, must be implemented for branching
   io.rd := pipeline_regs.rd
   io.ctrl := pipeline_regs.ctrl
 }

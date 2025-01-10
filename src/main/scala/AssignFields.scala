@@ -45,20 +45,20 @@ class AssignFields extends Module{
   // Assign Immediate values
   switch(opcode) {
     is(R_Type) {
-      // Nothing specific gets assigned
+      // Default Case, is assigned outside of switch statement
     }
 
     is(I_Type_1, I_Type_2, I_Type_3, I_Type_4) {
-      io.output.imm := (io.instruction(31, 20)).asSInt
+      io.output.imm := io.instruction(31, 20).asSInt
     }
 
     is(S_Type) {
-      io.output.imm := (Cat(io.instruction(31, 25), io.instruction(11, 7))).asSInt
+      io.output.imm := Cat(io.instruction(31, 25), io.instruction(11, 7)).asSInt
     }
 
     is(B_Type) {
-      io.output.imm := (Cat(io.instruction(31), io.instruction(7),
-                           io.instruction(30, 25), io.instruction(11, 8), 0.U(1.W))).asSInt
+      io.output.imm := Cat(io.instruction(31), io.instruction(7),
+                           io.instruction(30, 25), io.instruction(11, 8), 0.U(1.W)).asSInt
     }
 
     is(U_Type) {
@@ -66,8 +66,8 @@ class AssignFields extends Module{
     }
 
     is(J_Type) {
-      io.output.imm := (Cat(io.instruction(31), io.instruction(19, 12),
-                           io.instruction(20), io.instruction(30, 21), 0.U(1.W))).asSInt
+      io.output.imm := Cat(io.instruction(31), io.instruction(19, 12),
+                           io.instruction(20), io.instruction(30, 21), 0.U(1.W)).asSInt
     }
   }
 }

@@ -61,7 +61,7 @@ class ALUTest_All extends AnyFlatSpec with ChiselScalatestTester {
       //Regular case (max shifted by 31)
       dut.io.input.data1.poke(12.S)
       dut.io.input.data2.poke(3.S)
-      dut.io.result.expect((12 << 3).S)
+      dut.io.result.expect(96.S)
       //Test for overflow (shifted by 32 and above)
       dut.io.input.data1.poke(1.S)
       dut.io.input.data2.poke(524288.S)
