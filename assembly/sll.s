@@ -1,4 +1,3 @@
-nop
 addi x1, x0, 5
 addi x2, x0, 2
 nop
