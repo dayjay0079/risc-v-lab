@@ -37,8 +37,14 @@ class RegisterFile(fpga: Boolean) extends Module {
   }
 
   // Reading from registers
-  io.data1 := Mux(io.rs1 === 0.U, 0.S, readReg(io.rs1))
-  io.data2 := Mux(io.rs2 === 0.U, 0.S, readReg(io.rs2))
+  if (fpga) {
+    io.data1 := Mux(io.rs1 === 0.U, 0.S, readReg(io.rs1))
+    io.data2 := Mux(io.rs2 === 0.U, 0.S, readReg(io.rs2))
+  } else {
+    io.data1 := RegNext(Mux(io.rs1 === 0.U, 0.S, readReg(io.rs1)))
+    io.data2 := RegNext(Mux(io.rs2 === 0.U, 0.S, readReg(io.rs2)))
+  }
+
 
   // Writing to registers
   when (io.rd =/= 0.U && io.write_enable) {
