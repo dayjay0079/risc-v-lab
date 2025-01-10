@@ -24,5 +24,9 @@ class MemoryInstruction(program: Seq[Int], fpga: Boolean) extends Module {
   }
   
   // Example usage of readMemory
-  io.instruction := readMemory(io.pc)
+  if (fpga) {
+    io.instruction := readMemory(io.pc)
+  } else {
+    io.instruction := RegNext(readMemory(io.pc))
+  }
 }
