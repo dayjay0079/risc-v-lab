@@ -13,15 +13,23 @@ class Stage5_WB(fpga: Boolean) extends Module {
     val pipeline_vals = Input(new PipelineValuesWB)
     val data_out = Output(SInt(32.W))
     val rd = Output(UInt(5.W))
-    val write_enable = Output(Bool())
   })
 
   // Pipeline registers
   val pipeline_regs = Reg(new PipelineValuesWB)
   pipeline_regs := io.pipeline_vals
 
+  // Bool for writeback
+  val mem_to_reg = pipeline_regs.ctrl.mem_to_reg
+
+  when(mem_to_reg) {
+    io.data_out := pipeline_regs.data_in
+  } .otherwise {
+    io.data_out := pipeline_regs.data_in
+  }
+
   // Output
+
   io.data_out := pipeline_regs.data_in // TEMP
   io.rd := pipeline_regs.rd
-  io.write_enable := pipeline_regs.ctrl.opcode =/= 0.U // TEMP
 }
