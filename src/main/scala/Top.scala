@@ -47,11 +47,6 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   EX.io.pipeline_vals.ctrl := ID.io.ctrl
 
   // Stage 4: Memory access (if necessary)
-  val data_out_mem = Output(SInt(32.W))
-  val data_out_alu = Output(SInt(32.W))
-  val rd_out = Output(UInt(5.W))
-  val ctrl_out = Output(new ControlBus)
-
   MEM.io.data_write := EX.io.data_out_reg2
   MEM.io.data_in := EX.io.data_out_alu
   MEM.io.rd_in := EX.io.rd
@@ -61,7 +56,7 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   WB.io.pipeline_vals.data_in_alu := MEM.io.data_out_alu
   WB.io.pipeline_vals.data_in_mem := MEM.io.data_out_mem
   WB.io.pipeline_vals.rd := MEM.io.rd_out
-  WB.io.pipeline_vals.ctrl := MEM.io.ctrl
+  WB.io.pipeline_vals.ctrl := MEM.io.ctrl_out
 
   // Output for testing
   io.pc := IF.io.pc
