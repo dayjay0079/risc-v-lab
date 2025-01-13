@@ -24,7 +24,7 @@ class Stage3_EX(fpga: Boolean) extends Module {
   pipeline_regs := io.pipeline_vals
 
   // ALU
-  val ALU = Module(new ALU_Control)
+  val ALU = Module(new ALU)
   ALU.io.input := pipeline_regs
 
   // Output

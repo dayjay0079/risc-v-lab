@@ -35,7 +35,6 @@ class AssignFields extends Module{
   val I_Type_1 = "b0010011".U   // Arithmetic/Logic immediate
   val I_Type_2 = "b0000011".U   // Load
   val I_Type_3 = "b1100111".U   // jalr
-  val I_Type_4 = "b1110011".U   // ecall/ebreak
   val S_Type = "b0100011".U     // Store
   val B_Type = "b1100011".U     // Branch
   val J_Type = "b1101111".U     // jal
@@ -48,7 +47,7 @@ class AssignFields extends Module{
       // Default Case, is assigned outside of switch statement
     }
 
-    is(I_Type_1, I_Type_2, I_Type_3, I_Type_4) {
+    is(I_Type_1, I_Type_2, I_Type_3) {
       io.output.imm := io.instruction(31, 20).asSInt
     }
 

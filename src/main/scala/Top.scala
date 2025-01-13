@@ -58,8 +58,9 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   MEM.io.ctrl_in := EX.io.ctrl
 
   // Stage 5: Write back (if necessary)
-  WB.io.pipeline_vals.data_in := MEM.io.data_out
-  WB.io.pipeline_vals.rd := MEM.io.rd
+  WB.io.pipeline_vals.data_in_alu := MEM.io.data_out_alu
+  WB.io.pipeline_vals.data_in_mem := MEM.io.data_out_mem
+  WB.io.pipeline_vals.rd := MEM.io.rd_out
   WB.io.pipeline_vals.ctrl := MEM.io.ctrl
 
   // Output for testing
