@@ -20,6 +20,7 @@ object Top extends App {
 class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
   val io = IO(new Bundle{
     val regs = Output(Vec(32, SInt(32.W)))
+    val instruction = Output(UInt(32.W))
     val pc = Output(UInt(32.W))
   })
   val IF = Module(new Stage1_IF(program, fpga))
@@ -46,9 +47,15 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   EX.io.pipeline_vals.ctrl := ID.io.ctrl
 
   // Stage 4: Memory access (if necessary)
-  MEM.io.pipeline_vals.data_in := EX.io.data_out
-  MEM.io.pipeline_vals.rd := EX.io.rd
-  MEM.io.pipeline_vals.ctrl := EX.io.ctrl
+  val data_out_mem = Output(SInt(32.W))
+  val data_out_alu = Output(SInt(32.W))
+  val rd_out = Output(UInt(5.W))
+  val ctrl_out = Output(new ControlBus)
+
+  MEM.io.data_write := EX.io.data_out_reg2
+  MEM.io.data_in := EX.io.data_out_alu
+  MEM.io.rd_in := EX.io.rd
+  MEM.io.ctrl_in := EX.io.ctrl
 
   // Stage 5: Write back (if necessary)
   WB.io.pipeline_vals.data_in := MEM.io.data_out
@@ -57,5 +64,6 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
 
   // Output for testing
   io.pc := IF.io.pc
+  io.instruction := IF.io.instruction
   io.regs := ID.io.regs
 }

@@ -3,7 +3,8 @@ import chisel3.util._
 import lib.ControlBus
 
 class PipelineValuesWB extends Bundle {
-  val data_in = SInt(32.W)
+  val data_in_alu = SInt(32.W)
+  val data_in_mem = SInt(32.W)
   val rd = UInt(5.W)
   val ctrl = new ControlBus
 }
@@ -21,7 +22,7 @@ class Stage5_WB(fpga: Boolean) extends Module {
   pipeline_regs := io.pipeline_vals
 
   // Output
-  io.data_out := pipeline_regs.data_in // TEMP
+  io.data_out := Mux(pipeline_regs.ctrl.mem_to_reg, pipeline_regs.data_in_mem, pipeline_regs.data_in_alu)
   io.rd := pipeline_regs.rd
-  io.write_enable := pipeline_regs.ctrl.opcode =/= 0.U // TEMP
+  io.write_enable := pipeline_regs.ctrl.write_enable_reg
 }
