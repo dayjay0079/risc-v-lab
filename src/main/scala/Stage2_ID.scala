@@ -7,7 +7,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val instruction = Input(UInt(32.W))
     val rd_in = Input(UInt(5.W))
     val data_in = Input(SInt(32.W))
-    val pc_in = Input(UInt(32.W))
+    val pc = Input(UInt(32.W))
 
     val data_out1 = Output(SInt(32.W))
     val data_out2 = Output(SInt(32.W))
@@ -15,7 +15,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val rd_out = Output(UInt(5.W))
     val ctrl = Output(new ControlBus)
     val regs = Output(Vec(32, SInt(32.W))) // Only passed for debugging
-    val pc_out = Output(UInt(32.W)) // Forwarded pc
   })
 
   // Isolate instruction fields
@@ -24,6 +23,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
 
   // Bundle control values
   val ctrl = Wire(new ControlBus)
+  ctrl.pc := io.pc
   ctrl.opcode := control.io.ctrl.opcode
   ctrl.funct3 := control.io.ctrl.funct3
   ctrl.funct7 := control.io.ctrl.funct7
@@ -48,7 +48,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
   io.imm := RegNext(control.io.imm)
   io.rd_out := RegNext(control.io.rd)
   io.ctrl := RegNext(ctrl)
-  io.pc_out := io.pc_in
 
   io.regs := reg_file.io.regs
 }

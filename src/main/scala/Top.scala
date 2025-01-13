@@ -31,14 +31,14 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   // Stage 1: Instruction Fetch
   IF.io.jump := false.B
   IF.io.jump_offset := 0.S
-  IF.io.branch_target := EX.io.branch_target
+  IF.io.branch_pc := EX.io.branch_pc
   IF.io.branch_enable := EX.io.branch_enable
 
   // Stage 2: Instruction Decode
   ID.io.instruction := IF.io.instruction
   ID.io.rd_in := WB.io.rd
   ID.io.data_in := WB.io.data_out
-  ID.io.pc_in := IF.io.pc
+  ID.io.pc := IF.io.pc_reg
 
   // Stage 3: Execute operation/Calculate address
   EX.io.pipeline_vals.data1 := ID.io.data_out1
@@ -46,8 +46,6 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   EX.io.pipeline_vals.imm := ID.io.imm
   EX.io.pipeline_vals.rd := ID.io.rd_out
   EX.io.pipeline_vals.ctrl := ID.io.ctrl
-  EX.io.branch_offset := ID.io.imm
-  EX.io.pc_in := ID.io.pc_out
 
   // Stage 4: Memory access (if necessary)
   MEM.io.pipeline_vals.data_in := EX.io.data_out

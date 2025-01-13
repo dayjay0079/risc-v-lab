@@ -33,6 +33,7 @@ class Control extends Module{
 
   // I/O Connections
   io.imm := imm
+  io.ctrl.pc := DontCare
   io.ctrl.opcode := opcode
   io.ctrl.funct3 := funct3
   io.ctrl.funct7 := funct7

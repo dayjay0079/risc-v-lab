@@ -13,13 +13,13 @@ class PipelineValuesEX extends Bundle {
 class Stage3_EX(fpga: Boolean) extends Module {
   val io = IO(new Bundle{
     val pipeline_vals = Input(new PipelineValuesEX)
-    val branch_offset = Input(SInt(32.W))
-    val pc_in = Input(UInt(32.W))
 
     val data_out = Output(SInt(32.W))
     //val check_out = Output(Bool())
     val rd = Output(UInt(5.W))
     val ctrl = Output(new ControlBus)
+    val branch_enable = Output(Bool())
+    val branch_pc = Output(UInt(32.W))
   })
 
   // Pipeline registers
@@ -32,7 +32,8 @@ class Stage3_EX(fpga: Boolean) extends Module {
 
   // Output
   io.data_out := ALU.io.result
-  //io.check_out := alu.io.check // For B-Type instructions, must be implemented for branching
   io.rd := pipeline_regs.rd
   io.ctrl := pipeline_regs.ctrl
+  io.branch_enable := ALU.io.check
+  io.branch_pc := (io.pipeline_vals.ctrl.pc.asSInt + io.pipeline_vals.imm).asUInt
 }
