@@ -28,8 +28,8 @@ class Stage2_ID(fpga: Boolean) extends Module {
   ctrl.funct7 := control.io.ctrl.funct7
   ctrl.inst_type := control.io.ctrl.inst_type
   ctrl.write_enable_reg := control.io.ctrl.write_enable_reg
-  ctrl.write_enable_mem := control.io.ctrl.write_enable_reg
-  ctrl.mem_to_reg := control.io.ctrl.write_enable_reg
+  ctrl.write_enable_mem := control.io.ctrl.write_enable_mem
+  ctrl.mem_to_reg := control.io.ctrl.mem_to_reg
 
   // Read from registers
   val reg_file = Module(new RegisterFile(fpga))

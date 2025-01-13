@@ -17,29 +17,27 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
 
   // Data memory
   val data_memory = Seq.fill(4)(Module(new MemoryData(fpga, mem_size)))
-  val s_type = io.ctrl_in.opcode === "b0100011".U
-  val STORE_BYTE = 0.U
-  val STORE_HALFWORD = 1.U
-  val STORE_WORD = 2.U
+  val STORE_BYTE = 1.U
+  val STORE_HALFWORD = 2.U
+  val STORE_WORD = 3.U
 
   val write_address = io.data_in.asUInt & "xFFFFFFFC".U
   val byte_offset = io.data_in(1, 0)
-  val write_data = Seq(io.data_write(7, 0), io.data_write(15, 8), io.data_write(23, 16), io.data_write(31, 24))
+  val write_data = Seq(io.data_write(7, 0).asSInt, io.data_write(15, 8).asSInt,
+                       io.data_write(23, 16).asSInt, io.data_write(31, 24).asSInt)
   val write_enable = Seq.fill(4)(WireDefault(false.B))
 
   // Calculate data to write
   for(i <- 0 to 3) {
-    when(s_type) {
-      switch(io.ctrl_in.funct3) {
-        is(STORE_BYTE) {
-          write_enable(i) := i.U === byte_offset
-        }
-        is(STORE_HALFWORD) {
-          write_enable(i) := (i.U === byte_offset) || ((i+1).U === byte_offset)
-        }
-        is(STORE_WORD) {
-          write_enable(i) := true.B
-        }
+    switch(io.ctrl_in.write_enable_mem) {
+      is(STORE_BYTE) {
+        write_enable(i) := i.U === byte_offset
+      }
+      is(STORE_HALFWORD) {
+        write_enable(i) := (i.U === byte_offset) || ((i+1).U === byte_offset)
+      }
+      is(STORE_WORD) {
+        write_enable(i) := true.B
       }
     }
     data_memory(i).io.address := write_address + i.U
@@ -49,7 +47,7 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
 
   // Output
   io.data_out_mem := Cat(data_memory(3).io.data_out, data_memory(2).io.data_out,
-                     data_memory(1).io.data_out, data_memory(0).io.data_out)
+                     data_memory(1).io.data_out, data_memory(0).io.data_out).asSInt
   io.data_out_alu := RegNext(io.data_in)
   io.rd_out := RegNext(io.rd_in)
   io.ctrl_out := RegNext(io.ctrl_in)
