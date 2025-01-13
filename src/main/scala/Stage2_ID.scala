@@ -23,10 +23,13 @@ class Stage2_ID(fpga: Boolean) extends Module {
 
   // Bundle control values
   val ctrl = Wire(new ControlBus)
-  ctrl.opcode := control.io.opcode
-  ctrl.funct3 := control.io.funct3
-  ctrl.funct7 := control.io.funct7
-  ctrl.inst_type := control.io.inst_type
+  ctrl.opcode := control.io.ctrl.opcode
+  ctrl.funct3 := control.io.ctrl.funct3
+  ctrl.funct7 := control.io.ctrl.funct7
+  ctrl.inst_type := control.io.ctrl.inst_type
+  ctrl.write_enable_reg := control.io.ctrl.write_enable_reg
+  ctrl.write_enable_mem := control.io.ctrl.write_enable_reg
+  ctrl.mem_to_reg := control.io.ctrl.write_enable_reg
 
   // Read from registers
   val reg_file = Module(new RegisterFile(fpga))
