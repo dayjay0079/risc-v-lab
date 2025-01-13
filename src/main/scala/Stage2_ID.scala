@@ -7,7 +7,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val instruction = Input(UInt(32.W))
     val rd_in = Input(UInt(5.W))
     val data_in = Input(SInt(32.W))
-    val write_enable = Input(Bool())
 
     val data_out1 = Output(SInt(32.W))
     val data_out2 = Output(SInt(32.W))
@@ -39,7 +38,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
   // Write to registers
   reg_file.io.rd := io.rd_in
   reg_file.io.data_in := io.data_in
-  reg_file.io.write_enable := io.write_enable
+  reg_file.io.write_enable := control.io.ctrl.write_enable_reg
 
   // Output
   io.data_out1 := reg_file.io.data1
