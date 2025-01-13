@@ -9,7 +9,7 @@ class PipelineTest_Branching extends AnyFlatSpec with ChiselScalatestTester {
     val MEM_SIZE = 1024
     val FREQ = 50000000
     val BAUD = 9600
-    val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/branching_neg.bin")
+    val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/branching.bin")
     test(new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       while(dut.io.pc.peekInt <= 200) {
         dut.clock.step()

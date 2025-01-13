@@ -4,7 +4,7 @@ import lib.ReadAssembly
 import org.scalatest.flatspec.AnyFlatSpec
 
 class PipelineTest_Algebraic extends AnyFlatSpec with ChiselScalatestTester {
-  "Pipeline Test" should "pass" in {
+  "Pipeline Algebraic Test" should "pass" in {
     val FPGA = false
     val MEM_SIZE = 1024
     val FREQ = 50000000
