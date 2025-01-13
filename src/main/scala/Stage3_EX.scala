@@ -13,6 +13,9 @@ class PipelineValuesEX extends Bundle {
 class Stage3_EX(fpga: Boolean) extends Module {
   val io = IO(new Bundle{
     val pipeline_vals = Input(new PipelineValuesEX)
+    val branch_offset = Input(SInt(32.W))
+    val pc_in = Input(UInt(32.W))
+
     val data_out = Output(SInt(32.W))
     val rd = Output(UInt(5.W))
     val ctrl = Output(new ControlBus)
