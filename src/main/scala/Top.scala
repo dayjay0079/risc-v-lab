@@ -21,6 +21,7 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   val io = IO(new Bundle{
     val regs = Output(Vec(32, SInt(32.W)))
     val pc = Output(UInt(32.W))
+    val branch = Output(Bool()) //Test val
   })
   val IF = Module(new Stage1_IF(program, fpga))
   val ID = Module(new Stage2_ID(fpga))
@@ -60,4 +61,5 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   // Output for testing
   io.pc := IF.io.pc
   io.regs := ID.io.regs
+  io.branch := EX.io.branch_enable
 }
