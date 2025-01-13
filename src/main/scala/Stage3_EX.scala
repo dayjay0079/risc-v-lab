@@ -13,6 +13,8 @@ class PipelineValuesEX extends Bundle {
 class Stage3_EX(fpga: Boolean) extends Module {
   val io = IO(new Bundle{
     val pipeline_vals = Input(new PipelineValuesEX)
+    val data_out_alu = Output(SInt(32.W))
+    val data_out_reg2 = Output(SInt(32.W))
     val rd = Output(UInt(5.W))
     val imm = Output(SInt(32.W)) //Temp
     val ctrl = Output(new ControlBus)
@@ -32,6 +34,8 @@ class Stage3_EX(fpga: Boolean) extends Module {
   // Output
   io.data_out := ALU.io.result
   io.imm := pipeline_regs.imm // Debugging
+  io.data_out_alu := ALU.io.result
+  io.data_out_reg2 := pipeline_regs.data2
   io.rd := pipeline_regs.rd
   io.ctrl := pipeline_regs.ctrl
   io.branch_enable := ALU.io.check

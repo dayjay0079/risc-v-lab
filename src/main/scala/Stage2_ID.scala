@@ -8,6 +8,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val rd_in = Input(UInt(5.W))
     val data_in = Input(SInt(32.W))
     val pc = Input(UInt(32.W))
+    val write_enable = Input(Bool())
 
     val data_out1 = Output(SInt(32.W))
     val data_out2 = Output(SInt(32.W))
@@ -29,8 +30,8 @@ class Stage2_ID(fpga: Boolean) extends Module {
   ctrl.funct7 := control.io.ctrl.funct7
   ctrl.inst_type := control.io.ctrl.inst_type
   ctrl.write_enable_reg := control.io.ctrl.write_enable_reg
-  ctrl.write_enable_mem := control.io.ctrl.write_enable_reg
-  ctrl.mem_to_reg := control.io.ctrl.write_enable_reg
+  ctrl.write_enable_mem := control.io.ctrl.write_enable_mem
+  ctrl.mem_to_reg := control.io.ctrl.mem_to_reg
 
   // Read from registers
   val reg_file = Module(new RegisterFile(fpga))
@@ -40,7 +41,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
   // Write to registers
   reg_file.io.rd := io.rd_in
   reg_file.io.data_in := io.data_in
-  reg_file.io.write_enable := control.io.ctrl.write_enable_reg
+  reg_file.io.write_enable := io.write_enable
 
   // Output
   io.data_out1 := reg_file.io.data1

@@ -9,6 +9,27 @@ array: .word 5
        .word 3
        .word 2
 .text
+    auipc x1, 0x10000
+    nop
+    nop
+    nop
+    nop
+    addi x1, x1, 0
+    nop
+    nop
+    nop
+    nop
+    addi x10, x0, 0
+    nop
+    nop
+    nop
+    nop
+    lw x2, 0(x1)
+    nop
+    nop
+    nop
+    nop
+
 loop:
     blt  x2, x0, done
     nop
