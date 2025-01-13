@@ -6,6 +6,7 @@ class ALU extends Module{
     val input = Input(new PipelineValuesEX)
     val result = Output(SInt(32.W))
     val check = Output(Bool())
+
   })
 
   //Initialize I/O
@@ -48,6 +49,7 @@ class ALU extends Module{
     is(J_Type, U_Type_1, U_Type_2) { var1 := imm }
   }
 
+  // Choose arithmetic instruction type
   switch(instruction) {
     is(0.U) { //ADD
       result := var1 + var2

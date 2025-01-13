@@ -11,24 +11,24 @@ class PipelineTest_addi extends AnyFlatSpec with ChiselScalatestTester {
     val BAUD = 9600
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/addi5.bin")
     test(new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      while(dut.io.pc.peekInt <= 100) {
-        if(dut.io.pc.peekInt === 20) {
+      while(dut.io.pc.peekInt <= 108) {
+        if(dut.io.pc.peekInt === 28) {
           println("First Instruction Check")
           dut.io.regs(1).expect(1.S)
         }
-        if(dut.io.pc.peekInt === 40) {
+        if(dut.io.pc.peekInt === 48) {
           println("Second Instruction Check")
           dut.io.regs(1).expect(3.S)
         }
-        if(dut.io.pc.peekInt === 60) {
+        if(dut.io.pc.peekInt === 68) {
           println("Third Instruction Check")
           dut.io.regs(1).expect(6.S)
         }
-        if(dut.io.pc.peekInt === 80) {
+        if(dut.io.pc.peekInt === 88) {
           println("Fourth Instruction Check")
           dut.io.regs(1).expect(10.S)
         }
-        if(dut.io.pc.peekInt === 100) {
+        if(dut.io.pc.peekInt === 108) {
           println("Fifth Instruction Check")
           dut.io.regs(1).expect(15.S)
         }
