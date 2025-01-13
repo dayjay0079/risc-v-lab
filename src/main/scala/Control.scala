@@ -53,6 +53,7 @@ class Control extends Module{
     val NS, SB, SH, SW = Value
   }
   import SType._
+  //"00000000000100010000101001100011"
 
   // Instruction Types
   val R_Type = "b0110011".U     // Arithmetic/Logic
@@ -88,7 +89,7 @@ class Control extends Module{
       write_enable_reg := 0.B
     }
     is(B_Type) {
-      imm := Cat(io.instruction(31), io.instruction(7),  io.instruction(30, 25), io.instruction(11, 8), 0.U(1.W)).asSInt
+      imm := Cat(io.instruction(31), io.instruction(7), io.instruction(30, 25), io.instruction(11, 8)).asSInt << 1
       write_enable_reg := 0.B
     }
     is(U_Type_1, U_Type_2) {

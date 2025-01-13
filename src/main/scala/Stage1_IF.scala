@@ -18,7 +18,7 @@ class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
 
   // Set up program counter circuit
   val pc_reg = RegInit(-4.S(32.W))
-  val pc = Mux(io.jump, (pc_reg + io.jump_offset).asUInt, Mux(io.branch_enable, io.branch_pc, (pc_reg + 4.S).asUInt))
+  val pc = Mux(io.branch_enable, io.branch_pc, (pc_reg + 4.S).asUInt)
   pc_reg := pc.asSInt
 
   // Read instruction
