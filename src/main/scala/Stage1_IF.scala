@@ -26,9 +26,11 @@ class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
 
   // Initialization delay
   val init_reg = RegInit(0.U(3.W))
-  val init_delay = init_reg <= 5.U
-  when (init_delay) {
+  val init_delay = 5.U
+  when (init_reg < init_delay) {
     pc_reg := -4.S
+  }
+  when (init_reg <= init_delay) {
     io.instruction := 0.U
     init_reg := init_reg + 1.U
   }
