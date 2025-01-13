@@ -17,6 +17,7 @@ class Stage3_EX(fpga: Boolean) extends Module {
     val pc_in = Input(UInt(32.W))
 
     val data_out = Output(SInt(32.W))
+    //val check_out = Output(Bool())
     val rd = Output(UInt(5.W))
     val ctrl = Output(new ControlBus)
   })
@@ -26,12 +27,12 @@ class Stage3_EX(fpga: Boolean) extends Module {
   pipeline_regs := io.pipeline_vals
 
   // ALU
-  val ALU = Module(new ALU_Control)
+  val ALU = Module(new ALU)
   ALU.io.input := pipeline_regs
 
   // Output
   io.data_out := ALU.io.result
-  //io.check_out := ALU.io.check // For B-Type instructions, must be implemented for branching
+  //io.check_out := alu.io.check // For B-Type instructions, must be implemented for branching
   io.rd := pipeline_regs.rd
   io.ctrl := pipeline_regs.ctrl
 }

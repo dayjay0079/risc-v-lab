@@ -1,3 +1,4 @@
+nop
 addi x1, x0, 12
 nop
 nop
