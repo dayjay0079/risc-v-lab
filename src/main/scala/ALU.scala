@@ -81,68 +81,68 @@ class ALU extends Module{
 
   // Choose arithmetic instruction type
   switch(inst_type) {
-    is(0.U) { //ADD
-      result := var1 + var2
-    }
-    is(1.U) { //SUB
-      result := var1 - var2
-    }
-    is(2.U) { //XOR
-      result := var1 ^ var2
-    }
-    is(3.U) { //OR
-      result := var1 | var2
-    }
-    is(4.U) { //AND
-      result := var1 & var2
-    }
-    is(5.U) { //SLL
-      result := Mux(var2 >= 32.S, 0.S, var1 << var2(4, 0).asUInt)
-    }
-    is(6.U) { //SRL
-      result := (var1.asUInt >> var2.asUInt).asSInt
-    }
-    is(7.U) { //SRA
-      result := var1 >> var2.asUInt
-    }
-    is(8.U) { //SLT
-      result := Mux(var1 < var2, 1.S(32.W), 0.S(32.W))
-    }
-    is(9.U) { //SLTU
-      result := Mux(var1.asUInt < var2.asUInt, 1.S(32.W), 0.S(32.W))
-    }
-    is(10.U) { //BEQ
-      pc_update_bool := var1 === var2
-    }
-    is(11.U) { //BNE
-      pc_update_bool := var1 =/= var2
-    }
-    is(12.U) { //BLT
-      pc_update_bool := var1 < var2
-    }
-    is(13.U) { //BGE
-      pc_update_bool := var1 >= var2
-    }
-    is(14.U) { //BLTU
-      pc_update_bool := var1.asUInt < var2.asUInt
-    }
-    is(15.U) { //BGEU
-      pc_update_bool := var1.asUInt >= var2.asUInt
-    }
-    is(16.U) { //JAL
-      pc_update_bool := 1.B
-      result := pc.asSInt + 4.S
-    }
-    is(17.U) { //LUI
-      result := (imm(19, 0) << 12.U).asSInt
-    }
-    is(18.U) { //AUIPC
-      result := (pc + (imm(19,0) << 12.U).asUInt).asSInt
-    }
-    is(19.U) { //NaI
+    is(0.U) { //NaI
       pc_update_val := DontCare
       pc_update_bool := 0.B
       result := 0.S
+    }
+    is(1.U) { //ADD
+      result := var1 + var2
+    }
+    is(2.U) { //SUB
+      result := var1 - var2
+    }
+    is(3.U) { //XOR
+      result := var1 ^ var2
+    }
+    is(4.U) { //OR
+      result := var1 | var2
+    }
+    is(5.U) { //AND
+      result := var1 & var2
+    }
+    is(6.U) { //SLL
+      result := Mux(var2 >= 32.S, 0.S, var1 << var2(4, 0).asUInt)
+    }
+    is(7.U) { //SRL
+      result := (var1.asUInt >> var2.asUInt).asSInt
+    }
+    is(8.U) { //SRA
+      result := var1 >> var2.asUInt
+    }
+    is(9.U) { //SLT
+      result := Mux(var1 < var2, 1.S(32.W), 0.S(32.W))
+    }
+    is(10.U) { //SLTU
+      result := Mux(var1.asUInt < var2.asUInt, 1.S(32.W), 0.S(32.W))
+    }
+    is(11.U) { //BEQ
+      pc_update_bool := var1 === var2
+    }
+    is(12.U) { //BNE
+      pc_update_bool := var1 =/= var2
+    }
+    is(13.U) { //BLT
+      pc_update_bool := var1 < var2
+    }
+    is(14.U) { //BGE
+      pc_update_bool := var1 >= var2
+    }
+    is(15.U) { //BLTU
+      pc_update_bool := var1.asUInt < var2.asUInt
+    }
+    is(16.U) { //BGEU
+      pc_update_bool := var1.asUInt >= var2.asUInt
+    }
+    is(17.U) { //JAL
+      pc_update_bool := 1.B
+      result := pc.asSInt + 4.S
+    }
+    is(18.U) { //LUI
+      result := (imm(19, 0) << 12.U).asSInt
+    }
+    is(19.U) { //AUIPC
+      result := pc.asSInt + imm //(pc + (imm << 12.U).asUInt)(31,0).asSInt
     }
   }
 }

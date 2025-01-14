@@ -11,7 +11,7 @@ class PipelineTest_Loop extends AnyFlatSpec with ChiselScalatestTester {
     val BAUD = 9600
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/loop_array.bin")
     test(new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      while(dut.io.pc.peekInt <= 0) { //0xC4
+      while(dut.io.regs(17).peekInt != 10) {
         dut.clock.step()
       }
       // Needs to add lui and auipc for this to work

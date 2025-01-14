@@ -46,8 +46,8 @@ class Control extends Module{
 
   //Enumeration of Instruction Types
   object InstructionType extends ChiselEnum {
-    val ADD, SUB, XOR, OR, AND, SLL, SRL, SRA, SLT, SLTU,
-    BEQ, BNE, BLT, BGE, BLTU, BGEU, JAL, LUI, AUIPC, NaI = Value
+    val NaI, ADD, SUB, XOR, OR, AND, SLL, SRL, SRA, SLT, SLTU,
+    BEQ, BNE, BLT, BGE, BLTU, BGEU, JAL, LUI, AUIPC = Value
   }
   import InstructionType._
 
@@ -92,7 +92,6 @@ class Control extends Module{
     }
     is(I_Type_3) {
       imm := io.instruction(31, 20).asSInt
-      inst_type := JAL.asUInt
     }
     is(S_Type) {
       imm := Cat(io.instruction(31, 25), io.instruction(11, 7)).asSInt
@@ -104,15 +103,12 @@ class Control extends Module{
     }
     is(U_Type_1) {
       imm := (Cat(io.instruction(31, 12), 0.U(12.W))).asSInt
-      inst_type := LUI.asUInt
     }
     is(U_Type_2) {
       imm := (Cat(io.instruction(31, 12), 0.U(12.W))).asSInt
-      inst_type := AUIPC.asUInt
     }
     is(J_Type) {
       imm := Cat(io.instruction(31), io.instruction(19, 12),  io.instruction(20), io.instruction(30, 21), 0.U(1.W)).asSInt
-      inst_type := JAL.asUInt
     }
   }
 
@@ -124,9 +120,14 @@ class Control extends Module{
     is("x0".U) {
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, ADD.asUInt, Mux(funct7_type20, SUB.asUInt, NaI.asUInt)) }
-        is(I_Type_1, I_Type_2, I_Type_3) { inst_type := ADD.asUInt; mem_load_type := LB.asUInt }
+        is(I_Type_1) { inst_type := ADD.asUInt }
+        is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LB.asUInt }
+        is(I_Type_3) { inst_type := JAL.asUInt }
         is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SB.asUInt}
         is(B_Type) { inst_type := BEQ.asUInt }
+        is(U_Type_1) { inst_type := LUI.asUInt }
+        is(U_Type_2) { inst_type := AUIPC.asUInt }
+        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x1".U) {
@@ -136,6 +137,9 @@ class Control extends Module{
         is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LH.asUInt }
         is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SH.asUInt}
         is(B_Type) { inst_type := BNE.asUInt }
+        is(U_Type_1) { inst_type := LUI.asUInt }
+        is(U_Type_2) { inst_type := AUIPC.asUInt }
+        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x2".U) {
@@ -144,12 +148,18 @@ class Control extends Module{
         is(I_Type_1) { inst_type := SLT.asUInt }
         is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LW.asUInt }
         is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SW.asUInt}
+        is(U_Type_1) { inst_type := LUI.asUInt }
+        is(U_Type_2) { inst_type := AUIPC.asUInt }
+        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x3".U) {
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, SLTU.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := SLTU.asUInt }
+        is(U_Type_1) { inst_type := LUI.asUInt }
+        is(U_Type_2) { inst_type := AUIPC.asUInt }
+        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x4".U) {
@@ -158,6 +168,9 @@ class Control extends Module{
         is(I_Type_1) { inst_type := XOR.asUInt }
         is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LB_U.asUInt }
         is(B_Type) { inst_type := BLT.asUInt }
+        is(U_Type_1) { inst_type := LUI.asUInt }
+        is(U_Type_2) { inst_type := AUIPC.asUInt }
+        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x5".U) {
@@ -166,6 +179,9 @@ class Control extends Module{
         is(I_Type_1) { inst_type := Mux(imm_type00, SRL.asUInt, Mux(imm_type20, SRA.asUInt, NaI.asUInt)) }
         is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LH_U.asUInt }
         is(B_Type) { inst_type := BGE.asUInt }
+        is(U_Type_1) { inst_type := LUI.asUInt }
+        is(U_Type_2) { inst_type := AUIPC.asUInt }
+        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x6".U) {
@@ -173,6 +189,9 @@ class Control extends Module{
         is(R_Type) { inst_type := Mux(funct7_type00, OR.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := OR.asUInt }
         is(B_Type) { inst_type := BLTU.asUInt }
+        is(U_Type_1) { inst_type := LUI.asUInt }
+        is(U_Type_2) { inst_type := AUIPC.asUInt }
+        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x7".U) {
@@ -180,6 +199,9 @@ class Control extends Module{
         is(R_Type) { inst_type := Mux(funct7_type00, AND.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := AND.asUInt }
         is(B_Type) { inst_type := BGEU.asUInt }
+        is(U_Type_1) { inst_type := LUI.asUInt }
+        is(U_Type_2) { inst_type := AUIPC.asUInt }
+        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
   }

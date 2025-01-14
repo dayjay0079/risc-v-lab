@@ -1,15 +1,4 @@
-.data
-array: .word 5
-       .word 7
-       .word 2
-       .word 6
-       .word 2
-       .word 9
-       .word -1
-       .word 3
-       .word 2
 .text
-    nop
     auipc x1, 0x10000
     nop
     nop
@@ -30,7 +19,6 @@ array: .word 5
     nop
     nop
     nop
-
 loop:
     blt  x2, x0, done
     nop
@@ -63,3 +51,14 @@ done:
     nop
     nop
     nop
+
+.data
+array: .word 5
+       .word 7
+       .word 2
+       .word 6
+       .word 2
+       .word 9
+       .word -1
+       .word 3
+       .word 2
