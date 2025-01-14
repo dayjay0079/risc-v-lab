@@ -28,7 +28,8 @@ class Control extends Module{
   // Control values
   val inst_type = WireDefault(0.U(5.W))
   val write_enable_reg = WireDefault(1.B)
-  val write_enable_mem = Wire(UInt(2.W))
+  val mem_store_type = Wire(UInt(2.W))
+  val mem_load_type = Wire(UInt(3.W))
   val mem_to_reg = WireDefault(0.B)
 
   // I/O Connections
@@ -38,7 +39,8 @@ class Control extends Module{
   io.ctrl.funct7 := funct7
   io.ctrl.inst_type := inst_type
   io.ctrl.write_enable_reg := write_enable_reg
-  io.ctrl.write_enable_mem := write_enable_mem
+  io.ctrl.store_type := mem_store_type
+  io.ctrl.load_type := mem_load_type
   io.ctrl.mem_to_reg := mem_to_reg
 
   //Enumeration of Instruction Types
@@ -52,6 +54,11 @@ class Control extends Module{
     val NS, SB, SH, SW = Value
   }
   import SType._
+
+  object LType extends ChiselEnum {
+    val NL, LB, LH, LW, LB_U, LH_U = Value
+  }
+  import LType._
 
   // Instruction Types
   val R_Type = "b0110011".U     // Arithmetic/Logic
@@ -100,13 +107,14 @@ class Control extends Module{
 
   //Choose Instruction Type
   inst_type := NaI.asUInt //Default instruction "Not an Instruction" zeroes outputs
-  write_enable_mem := NS.asUInt // Default value "No Store" for stage 4
+  mem_store_type := NS.asUInt // Default value "No Store" for stage 4
+  mem_load_type := NL.asUInt // Default value "No Load" for stage 4
   switch(funct3) {
     is("x0".U) {
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, ADD.asUInt, Mux(funct7_type20, SUB.asUInt, NaI.asUInt)) }
-        is(I_Type_1, I_Type_2, I_Type_3) { inst_type := ADD.asUInt }
-        is(S_Type) { inst_type := ADD.asUInt; write_enable_mem := SB.asUInt}
+        is(I_Type_1, I_Type_2, I_Type_3) { inst_type := ADD.asUInt; mem_load_type := LB.asUInt }
+        is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SB.asUInt}
         is(B_Type) { inst_type := BEQ.asUInt }
       }
     }
@@ -114,8 +122,8 @@ class Control extends Module{
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, SLL.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := Mux(imm_type00, SLL.asUInt, NaI.asUInt) }
-        is(I_Type_2) { inst_type := ADD.asUInt }
-        is(S_Type) { inst_type := ADD.asUInt; write_enable_mem := SH.asUInt}
+        is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LH.asUInt }
+        is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SH.asUInt}
         is(B_Type) { inst_type := BNE.asUInt }
       }
     }
@@ -123,8 +131,8 @@ class Control extends Module{
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, SLT.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := SLT.asUInt }
-        is(I_Type_2) { inst_type := ADD.asUInt }
-        is(S_Type) { inst_type := ADD.asUInt; write_enable_mem := SW.asUInt}
+        is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LW.asUInt }
+        is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SW.asUInt}
       }
     }
     is("x3".U) {
@@ -137,7 +145,7 @@ class Control extends Module{
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, XOR.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := XOR.asUInt }
-        is(I_Type_2) { inst_type := ADD.asUInt }
+        is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LB_U.asUInt }
         is(B_Type) { inst_type := BLT.asUInt }
       }
     }
@@ -145,7 +153,7 @@ class Control extends Module{
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, SRL.asUInt, Mux(funct7_type20, SRA.asUInt, NaI.asUInt)) }
         is(I_Type_1) { inst_type := Mux(imm_type00, SRL.asUInt, Mux(imm_type20, SRA.asUInt, NaI.asUInt)) }
-        is(I_Type_2) { inst_type := ADD.asUInt }
+        is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LH_U.asUInt }
         is(B_Type) { inst_type := BGE.asUInt }
       }
     }
