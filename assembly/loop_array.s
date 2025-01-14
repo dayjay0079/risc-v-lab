@@ -9,6 +9,7 @@ array: .word 5
        .word 3
        .word 2
 .text
+    nop
     auipc x1, 0x10000
     nop
     nop

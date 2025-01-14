@@ -3,10 +3,8 @@ import chisel3.util._
 
 class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
   val io = IO(new Bundle{
-    val jump = Input(Bool())
-    val jump_offset = Input(SInt(32.W))
-    val branch_enable = Input(Bool())
-    val branch_pc = Input(UInt(32.W))
+    val pc_update_bool = Input(Bool())
+    val pc_update_val = Input(UInt(32.W))
 
     val instruction = Output(UInt(32.W))
     val pc_reg = Output(UInt(32.W))
@@ -18,7 +16,7 @@ class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
 
   // Set up program counter circuit
   val pc_reg = RegInit(-4.S(32.W))
-  val pc = Mux(io.branch_enable, io.branch_pc, (pc_reg + 4.S).asUInt)
+  val pc = Mux(io.pc_update_bool, io.pc_update_val, (pc_reg + 4.S).asUInt)
   pc_reg := pc.asSInt
 
   // Read instruction

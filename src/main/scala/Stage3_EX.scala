@@ -18,8 +18,8 @@ class Stage3_EX(fpga: Boolean) extends Module {
     val rd = Output(UInt(5.W))
     val imm = Output(SInt(32.W)) //Temp
     val ctrl = Output(new ControlBus)
-    val branch_enable = Output(Bool())
-    val branch_pc = Output(UInt(32.W))
+    val pc_update_bool = Output(Bool())
+    val pc_update_val = Output(UInt(32.W))
     val data_out = Output(SInt(32.W))
   })
 
@@ -38,6 +38,6 @@ class Stage3_EX(fpga: Boolean) extends Module {
   io.data_out_reg2 := pipeline_regs.data2
   io.rd := pipeline_regs.rd
   io.ctrl := pipeline_regs.ctrl
-  io.branch_enable := ALU.io.check
-  io.branch_pc := (pipeline_regs.ctrl.pc.asSInt + pipeline_regs.imm).asUInt
+  io.pc_update_bool := ALU.io.pc_update_bool
+  io.pc_update_val := ALU.io.pc_update_val
 }

@@ -45,7 +45,7 @@ class Control extends Module{
   //Enumeration of Instruction Types
   object InstructionType extends ChiselEnum {
     val ADD, SUB, XOR, OR, AND, SLL, SRL, SRA, SLT, SLTU,
-    BEQ, BNE, BLT, BGE, BLTU, BGEU, NaI = Value
+    BEQ, BNE, BLT, BGE, BLTU, BGEU, JAL, LUI, AUIPC, NaI = Value
   }
   import InstructionType._
 
@@ -53,7 +53,6 @@ class Control extends Module{
     val NS, SB, SH, SW = Value
   }
   import SType._
-  //"00000000000100010000101001100011"
 
   // Instruction Types
   val R_Type = "b0110011".U     // Arithmetic/Logic
@@ -77,12 +76,16 @@ class Control extends Module{
     is(R_Type) {
       // Default Case, is assigned outside of switch statement
     }
-    is(I_Type_1, I_Type_3) {
+    is(I_Type_1) {
       imm := io.instruction(31, 20).asSInt
     }
     is(I_Type_2) {
       imm := io.instruction(31, 20).asSInt
       mem_to_reg := 1.B
+    }
+    is(I_Type_3) {
+      imm := io.instruction(31, 20).asSInt
+      inst_type := JAL.asUInt
     }
     is(S_Type) {
       imm := Cat(io.instruction(31, 25), io.instruction(11, 7)).asSInt
@@ -92,11 +95,17 @@ class Control extends Module{
       imm := Cat(io.instruction(31), io.instruction(7), io.instruction(30, 25), io.instruction(11, 8)).asSInt << 1
       write_enable_reg := 0.B
     }
-    is(U_Type_1, U_Type_2) {
+    is(U_Type_1) {
       imm := (Cat(io.instruction(31, 12), 0.U(12.W))).asSInt
+      inst_type := LUI.asUInt
+    }
+    is(U_Type_2) {
+      imm := (Cat(io.instruction(31, 12), 0.U(12.W))).asSInt
+      inst_type := AUIPC.asUInt
     }
     is(J_Type) {
       imm := Cat(io.instruction(31), io.instruction(19, 12),  io.instruction(20), io.instruction(30, 21), 0.U(1.W)).asSInt
+      inst_type := JAL.asUInt
     }
   }
 

@@ -32,10 +32,8 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   val WB = Module(new Stage5_WB(fpga))
 
   // Stage 1: Instruction Fetch
-  IF.io.jump := false.B
-  IF.io.jump_offset := 0.S
-  IF.io.branch_pc := EX.io.branch_pc
-  IF.io.branch_enable := EX.io.branch_enable
+  IF.io.pc_update_val := EX.io.pc_update_val
+  IF.io.pc_update_bool := EX.io.pc_update_bool
 
   // Stage 2: Instruction Decode
   ID.io.instruction := IF.io.instruction
@@ -67,6 +65,6 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   io.pc := IF.io.pc
   io.instruction := IF.io.instruction
   io.regs := ID.io.regs
-  io.branch := EX.io.branch_enable
+  io.branch := EX.io.pc_update_bool
   io.imm := EX.io.imm
 }
