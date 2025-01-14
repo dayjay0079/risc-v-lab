@@ -2,7 +2,6 @@ import chisel3._
 import chisel3.util._
 import lib.ControlBus
 
-
 class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
   val io = IO(new Bundle{
     val data_write = Input(SInt(32.W))
@@ -28,7 +27,7 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
   val LOAD_BYTE_U = 4.U
   val LOAD_HALFWORD_U = 5.U
 
-  val address = io.data_in.asUInt & "xFFFFFFFC".U
+  val address = (io.data_in.asUInt >> 2.U).asUInt
   val byte_offset = io.data_in(1, 0)
   val write_data = VecInit(io.data_write(7, 0).asSInt, io.data_write(15, 8).asSInt,
                            io.data_write(23, 16).asSInt, io.data_write(31, 24).asSInt)
@@ -39,22 +38,82 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
   val load_halfword = WireDefault(0.U(16.W))
 
   for(i <- 0 to 3) {
-    switch(io.ctrl_in.store_type) {
-      is(STORE_BYTE) {
-        write_enable(i) := i.U === byte_offset
-      }
-      is(STORE_HALFWORD) {
-        write_enable(i) := (i.U === byte_offset) || ((i-1).U === byte_offset)
-      }
-      is(STORE_WORD) {
-        write_enable(i) := true.B
+    data_memory(i).io.address := 0.U
+    data_memory(i).io.data_in := 0.S
+    data_memory(i).io.write_enable := 0.B
+  }
+
+  // Store Logic
+  switch(io.ctrl_in.store_type) {
+    is(STORE_BYTE) {
+      switch(byte_offset) {
+        is(0.U) {
+          data_memory(0).io.address := address
+          data_memory(0).io.data_in := write_data(0.U)
+          data_memory(0).io.write_enable := true.B
+        }
+        is(1.U) {
+          data_memory(1).io.address := address
+          data_memory(1).io.data_in := write_data(0.U)
+          data_memory(1).io.write_enable := true.B
+        }
+        is(2.U) {
+          data_memory(2).io.address := address
+          data_memory(2).io.data_in := write_data(0.U)
+          data_memory(2).io.write_enable := true.B
+        }
+        is(3.U) {
+          data_memory(3).io.address := address
+          data_memory(3).io.data_in := write_data(0.U)
+          data_memory(3).io.write_enable := true.B
+        }
       }
     }
-
-    data_memory(i).io.address := (address >> 2.U).asUInt + i.U
-    data_memory(i).io.data_in := write_data(i)
-    data_memory(i).io.write_enable := write_enable(i)
+    is(STORE_HALFWORD) {
+      switch(byte_offset) {
+        is(0.U) {
+          data_memory(0).io.address := address
+          data_memory(1).io.address := address
+          data_memory(0).io.data_in := write_data(0.U)
+          data_memory(1).io.data_in := write_data(1.U)
+          data_memory(0).io.write_enable := true.B
+          data_memory(1).io.write_enable := true.B
+        }
+        is(1.U) {
+          data_memory(1).io.address := address
+          data_memory(2).io.address := address
+          data_memory(1).io.data_in := write_data(0.U)
+          data_memory(2).io.data_in := write_data(1.U)
+          data_memory(1).io.write_enable := true.B
+          data_memory(2).io.write_enable := true.B
+        }
+        is(2.U) {
+          data_memory(2).io.address := address
+          data_memory(3).io.address := address
+          data_memory(2).io.data_in := write_data(0.U)
+          data_memory(3).io.data_in := write_data(1.U)
+          data_memory(2).io.write_enable := true.B
+          data_memory(3).io.write_enable := true.B
+        }
+      }
+    }
+    is(STORE_WORD) {
+      data_memory(0).io.address := address
+      data_memory(1).io.address := address
+      data_memory(2).io.address := address
+      data_memory(3).io.address := address
+      data_memory(0).io.data_in := write_data(0.U)
+      data_memory(1).io.data_in := write_data(1.U)
+      data_memory(2).io.data_in := write_data(2.U)
+      data_memory(3).io.data_in := write_data(3.U)
+      data_memory(0).io.write_enable := true.B
+      data_memory(1).io.write_enable := true.B
+      data_memory(2).io.write_enable := true.B
+      data_memory(3).io.write_enable := true.B
+    }
   }
+
+  // Load Logic
   switch(io.ctrl_in.load_type) {
     is(LOAD_BYTE) {
       switch(byte_offset) {

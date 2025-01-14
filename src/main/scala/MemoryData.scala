@@ -27,9 +27,9 @@ class MemoryData(fpga: Boolean, mem_size: Int) extends Module {
 
   // Declare memory as AnyRef (parent type for both SyncReadMem and Vec)
   private val memory: AnyRef = if (fpga) {
-    SyncReadMem(mem_size/4, SInt(8.W)) // Type: SyncReadMem
+    SyncReadMem(mem_size >> 2, SInt(8.W)) // Type: SyncReadMem
   } else {
-    RegInit(VecInit(Seq.fill(mem_size/4)(0.S(8.W)))) // Type: Vec
+    RegInit(VecInit(Seq.fill(mem_size >> 4)(0.S(8.W)))) // Type: Vec
   }
 
   // Reading from memory
