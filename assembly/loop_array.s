@@ -25,7 +25,7 @@ sw x28, 32(x1)
 #Code
 addi x10, x0, 0
 lw x2, 0(x1)
-loop2:
+loop:
     blt  x2, x0, done
     addi x1, x1, 4
     nop
@@ -36,8 +36,9 @@ loop2:
     nop
     nop
     nop
-    beq  x0, x0 loop2
+    beq  x0, x0 loop
 done:
+    nop
     nop
     nop
     nop

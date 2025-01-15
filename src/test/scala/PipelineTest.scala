@@ -3,8 +3,8 @@ import chiseltest._
 import lib.ReadAssembly
 import org.scalatest.flatspec.AnyFlatSpec
 
-class PipelineTest_Loop extends AnyFlatSpec with ChiselScalatestTester {
-  "Pipeline Loop Test" should "pass" in {
+class PipelineTest extends AnyFlatSpec with ChiselScalatestTester {
+  "Full Pipeline Test" should "pass" in {
     val FPGA = false
     val MEM_SIZE = 1024
     val FREQ = 50000000
@@ -14,6 +14,7 @@ class PipelineTest_Loop extends AnyFlatSpec with ChiselScalatestTester {
       while(dut.io.regs(17).peekInt != 10) {
         dut.clock.step()
       }
+      dut.io.regs(10).expect(31)
     }
   }
 }
