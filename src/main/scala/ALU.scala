@@ -139,7 +139,7 @@ class ALU extends Module{
       result := pc.asSInt + 4.S
     }
     is(18.U) { //LUI
-      result := (imm(19, 0) << 12.U).asSInt
+      result := imm
     }
     is(19.U) { //AUIPC
       result := pc.asSInt + imm //(pc + (imm << 12.U).asUInt)(31,0).asSInt
