@@ -15,7 +15,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val imm = Output(SInt(32.W))
     val rd_out = Output(UInt(5.W))
     val ctrl = Output(new ControlBus)
-    val regs = Output(Vec(32, SInt(32.W))) // Only passed for debugging
   })
 
   // Isolate instruction fields
@@ -50,6 +49,4 @@ class Stage2_ID(fpga: Boolean) extends Module {
   io.imm := RegNext(control.io.imm)
   io.rd_out := RegNext(control.io.rd)
   io.ctrl := RegNext(ctrl)
-
-  io.regs := reg_file.io.regs
 }

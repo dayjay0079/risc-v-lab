@@ -6,7 +6,7 @@ import lib.peripherals.{MemoryMappedUart, StringStreamer}
 import lib.peripherals.MemoryMappedUart.UartPins
 
 object Top extends App {
-  val FPGA = false
+  val FPGA = true
   val MEM_SIZE = 1024
   val FREQ = 50000000
   val BAUD = 9600
@@ -19,11 +19,7 @@ object Top extends App {
 
 class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
   val io = IO(new Bundle{
-    val regs = Output(Vec(32, SInt(32.W)))
-    val instruction = Output(UInt(32.W))
-    val pc = Output(UInt(32.W))
-    val branch = Output(Bool()) //Test val
-    val imm = Output(SInt(32.W))
+//    val pc = Output(UInt(32.W))
   })
   val IF = Module(new Stage1_IF(program, fpga))
   val ID = Module(new Stage2_ID(fpga))
@@ -62,9 +58,5 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   WB.io.pipeline_vals.ctrl := MEM.io.ctrl_out
 
   // Output for testing
-  io.pc := IF.io.pc
-  io.instruction := IF.io.instruction
-  io.regs := ID.io.regs
-  io.branch := EX.io.pc_update_bool
-  io.imm := EX.io.imm
+//  io.pc := IF.io.pc
 }
