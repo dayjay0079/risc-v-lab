@@ -6,7 +6,7 @@ import org.scalatest.flatspec.AnyFlatSpec
 class MemoryTest extends AnyFlatSpec with ChiselScalatestTester {
   "Memory test" should "pass" in {
     val FPGA = false
-    val MEM_SIZE = 64
+    val MEM_SIZE = 1024
     val FREQ = 50000000
     val BAUD = 9600
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/memTest.bin")

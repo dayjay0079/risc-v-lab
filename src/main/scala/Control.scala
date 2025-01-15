@@ -113,7 +113,9 @@ class Control extends Module{
     is("x0".U) {
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, ADD.asUInt, Mux(funct7_type20, SUB.asUInt, NaI.asUInt)) }
-        is(I_Type_1, I_Type_2, I_Type_3) { inst_type := ADD.asUInt; mem_load_type := LB.asUInt }
+        is(I_Type_1) { inst_type := ADD.asUInt }
+        is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LB.asUInt }
+        is(I_Type_3) { inst_type := ADD.asUInt }
         is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SB.asUInt}
         is(B_Type) { inst_type := BEQ.asUInt }
       }
