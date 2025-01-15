@@ -38,7 +38,6 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
 
   val store_type = io.ctrl_in.store_type
 
-
   // Initialize memory defaults
   for (mem <- data_memory) {
     mem.io.address := 0.U
@@ -91,7 +90,6 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
   val sign_extension : Bool = 1.B //io.ctrl_in.load_type(2) TEMP!!! UNSIGNED LOGIC ShOULD BE MADE
   val load_type = RegNext(io.ctrl_in.load_type(1,0))
   val byte_offset_load = RegNext(byte_offset)
-  load_data := 0.S
 
   // Load Byte
   when(load_type === LOAD_BYTE) {
@@ -100,7 +98,8 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
         load_byte := data_memory(i).io.data_out
       }
     }
-    load_data := Mux(sign_extension, load_byte.asSInt << 24 >> 24, load_byte.asSInt)
+    load_data := Mux(sign_extension, load_byte.asSInt << 24 >> 24,
+                     Cat(0.U(24.W), load_byte(7,0)).asSInt)
   }
 
   // Load Half-word
@@ -110,7 +109,8 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
         load_halfword := Cat(data_memory((i + 1) % 4).io.data_out, data_memory(i).io.data_out).asSInt
       }
     }
-    load_data := Mux(sign_extension, load_halfword.asSInt << 16 >> 16, load_halfword.asSInt)
+    load_data := Mux(sign_extension, load_halfword.asSInt << 16 >> 16,
+                     Cat(0.U(16.W), load_halfword(15,0)).asSInt)
   }
 
   // Load Word
