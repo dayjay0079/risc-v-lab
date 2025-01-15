@@ -12,16 +12,16 @@ class MemoryData(fpga: Boolean, mem_size: Int) extends Module {
   // Define a method to handle unified memory access
   def readMemory(addr: UInt): SInt = {
     if (fpga) {
-      memory.asInstanceOf[SyncReadMem[SInt]].read(addr)
+      memory.asInstanceOf[SyncReadMem[SInt]].read((addr >> 2.U).asUInt)
     } else {
-      memory.asInstanceOf[Vec[SInt]](addr)
+      memory.asInstanceOf[Vec[SInt]]((addr >> 2.U).asUInt)
     }
   }
   def writeMemory(addr: UInt, data: SInt) = {
     if (fpga) {
-      memory.asInstanceOf[SyncReadMem[SInt]].write(addr, data)
+      memory.asInstanceOf[SyncReadMem[SInt]].write((addr >> 2.U).asUInt, data)
     } else {
-      memory.asInstanceOf[Vec[SInt]](addr) := data
+      memory.asInstanceOf[Vec[SInt]]((addr >> 2.U).asUInt) := data
     }
   }
 
@@ -29,7 +29,7 @@ class MemoryData(fpga: Boolean, mem_size: Int) extends Module {
   private val memory: AnyRef = if (fpga) {
     SyncReadMem(mem_size >> 2, SInt(8.W)) // Type: SyncReadMem
   } else {
-    RegInit(VecInit(Seq.fill(mem_size >> 4)(0.S(8.W)))) // Type: Vec
+    RegInit(VecInit(Seq.fill(mem_size >> 2)(0.S(8.W)))) // Type: Vec
   }
 
   // Reading from memory
