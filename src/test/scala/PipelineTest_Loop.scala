@@ -14,7 +14,6 @@ class PipelineTest_Loop extends AnyFlatSpec with ChiselScalatestTester {
       while(dut.io.regs(17).peekInt != 10) {
         dut.clock.step()
       }
-      // Needs to add lui and auipc for this to work
     }
   }
 }
