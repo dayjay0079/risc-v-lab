@@ -2,15 +2,17 @@ import chisel3._
 import chisel3.util._
 
 import lib.ReadAssembly
-import lib.peripherals.{MemoryMappedUart, StringStreamer}
+import lib.peripherals.{MemoryMappedLeds, MemoryMappedUart, StringStreamer}
 import lib.peripherals.MemoryMappedUart.UartPins
+import lib.Bus
 
 object Top extends App {
   val FPGA = true
   val MEM_SIZE = 1024
-  val FREQ = 50000000
+  val FREQ = 100000000
   val BAUD = 9600
-  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/addi5.bin")
+  val PROGRAM_NAME = "addi5.bin"
+  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/" + PROGRAM_NAME)
   emitVerilog(
     new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD),
     Array("--target-dir", "generated")
@@ -19,8 +21,10 @@ object Top extends App {
 
 class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
   val io = IO(new Bundle{
-//    val pc = Output(UInt(32.W))
+    val uart = UartPins()
+    val leds = Output(UInt(16.W))
   })
+
   val IF = Module(new Stage1_IF(program, fpga))
   val ID = Module(new Stage2_ID(fpga))
   val EX = Module(new Stage3_EX(fpga))

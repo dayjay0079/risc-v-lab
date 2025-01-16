@@ -7,9 +7,9 @@ class MemoryInstruction(program: Seq[Int], fpga: Boolean) extends Module {
     val instruction = Output(UInt(32.W))
   })
 
-  // Declare IM as AnyRef (parent type for both SyncReadMem and Vec)
+  // Initialize the instruciton memory as a vector of wires
   private val IM = VecInit(program.map(value => (value & 0xFFFFFFFFL).asUInt(32.W))) // Type: Vec
   
-  // Example usage of readMemory
+  // Delay the output by 1 clock cycle
   io.instruction := RegNext(IM((io.pc >> 2.U).asUInt))
 }

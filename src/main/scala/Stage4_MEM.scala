@@ -1,9 +1,14 @@
 import chisel3._
 import chisel3.util._
 import lib.ControlBus
+import lib.peripherals.MemoryMappedUart.UartPins
+import lib.peripherals.{MemoryMappedLeds, MemoryMappedUart, StringStreamer}
 
-class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
+class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
+    val uart = UartPins()
+    val leds = Output(UInt(led_cnt.W))
+
     val data_write = Input(SInt(32.W))
     val data_in = Input(SInt(32.W))
     val rd_in = Input(UInt(5.W))
@@ -13,6 +18,25 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
     val rd_out = Output(UInt(5.W))
     val ctrl_out = Output(new ControlBus)
   })
+
+  val memory_arbiter = Module(new MemoryArbiter)
+  memory_arbiter.io.address_in := io.data_in
+
+  val stringStreamer = StringStreamer("Hello World!\n\r")
+  //// Memory mapped UART
+  // Initialize UART connection
+  val mmUart = MemoryMappedUart(
+    freq,
+    baud,
+    txBufferDepth = 8,
+    rxBufferDepth = 8
+  )
+  stringStreamer.io.port <> mmUart.io.port
+  io.uart <> mmUart.io.pins
+
+  //// Memory mapped leds
+  val mmLeds = Module(new MemoryMappedLeds(led_cnt))
+  mmLeds.io.port := memory_arbiter.io.address_out
 
   // Data memory
   val data_memory = Seq.fill(4)(Module(new MemoryData(fpga, mem_size)))
