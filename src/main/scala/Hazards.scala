@@ -64,55 +64,52 @@ class Hazards extends Module{
     stall_counter := 1.U
   }
 
+  // placeholder booleans
+  val hz_EX_bool = (hz_EX.opcode === R_Type) | (hz_EX.opcode === I_Type_1) | (hz_EX.opcode === I_Type_2) | (hz_EX.opcode === I_Type_3) | (hz_EX.opcode === U_Type_1) | (hz_EX.opcode === U_Type_2)
+  val hz_MEM_bool = (hz_MEM.opcode === R_Type) | (hz_MEM.opcode === I_Type_1) | (hz_MEM.opcode === I_Type_2) | (hz_MEM.opcode === I_Type_3) | (hz_MEM.opcode === U_Type_1) | (hz_MEM.opcode === U_Type_2)
+  val hz_WB_bool = (hz_WB.opcode === R_Type) | (hz_WB.opcode === I_Type_1) | (hz_WB.opcode === I_Type_2) | (hz_WB.opcode === I_Type_3) | (hz_WB.opcode === U_Type_1) | (hz_WB.opcode === U_Type_2)
+
+
+  io.EX_control := 0.U
 
   // if statements for 4 bit control signal for EX stage
-  when(hz_EX.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
-    when((hz_EX.rd === io.rs1) & (hz_EX.rd === io.rs2)) {
+  when(hz_EX_bool & ((hz_EX.rd === io.rs1) | (hz_EX.rd === io.rs2))) {
+    when((hz_EX.rd === io.rs1) && (hz_EX.rd === io.rs2)) {
       io.EX_control := 7.U // For EX_rd / EX_rd
     } .elsewhen(hz_EX.rd === io.rs1) {
-      when(hz_MEM.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
-        when(hz_MEM.rd === io.rs2) {
+      when(hz_MEM_bool & hz_MEM.rd === io.rs2) {
           io.EX_control := 10.U // For EX_rd / MEM_rd
-        }
-      } .elsewhen(hz_WB.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
-        when(hz_WB.rd === io.rs2) {
+      } .elsewhen(hz_WB_bool & hz_WB.rd === io.rs2) {
           io.EX_control := 11.U // For EX_rd / WB_rd
-        }
-      } .otherwise {io.EX_control := 4.U} // For EX_rd / rs2
+      } .otherwise {
+        io.EX_control := 4.U  // For EX_rd / rs2
+      }
     } .elsewhen(hz_EX.rd === io.rs2) {
-      when(hz_MEM.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
-        when(hz_MEM.rd === io.rs1) {
+      when(hz_MEM_bool & hz_MEM.rd === io.rs1) {
           io.EX_control := 12.U // For MEM_rd / EX_rd
-        }
-      } .elsewhen(hz_WB.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
-        when(hz_WB.rd === io.rs1) {
+      } .elsewhen(hz_WB_bool & hz_WB.rd === io.rs1) {
           io.EX_control := 13.U // For WB_rd / EX_rd
-        }
       } .otherwise {
         io.EX_control := 1.U // For rs1 / EX_rd
       }
     }
-  } .elsewhen (hz_MEM.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
+  } .elsewhen (hz_MEM_bool & ((hz_MEM.rd === io.rs1) | (hz_MEM.rd === io.rs2))) {
     when((hz_MEM.rd === io.rs1) & (hz_MEM.rd === io.rs2)) {
       io.EX_control := 8.U // For MEM_rd / MEM_rd
     }.elsewhen(hz_MEM.rd === io.rs1) {
-      when(hz_WB.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
-        when(hz_WB.rd === io.rs2) {
+      when(hz_WB_bool & hz_WB.rd === io.rs2) {
           io.EX_control := 14.U // For MEM_rd / WB_rd
-        }
       }.otherwise {
         io.EX_control := 5.U // For MEM_rd / rs2
       }
     }
   }.elsewhen(hz_MEM.rd === io.rs2) {
-    when(hz_WB.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
-      when(hz_WB.rd === io.rs1) {
+    when(hz_WB_bool & hz_WB.rd === io.rs1) {
         io.EX_control := 15.U // For WB_rd / MEM_rd
-      }
     }.otherwise {
       io.EX_control := 2.U // For rs1 / MEM_rd
     }
-  } .elsewhen (hz_WB.opcode === (R_Type | I_Type_1 | I_Type_2 | I_Type_3 | U_Type_1 | U_Type_2)) {
+  } .elsewhen (hz_WB_bool & ((hz_WB.rd === io.rs1) | (hz_WB.rd === io.rs2))) {
     when((hz_WB.rd === io.rs1) & (hz_WB.rd === io.rs2)) {
       io.EX_control := 9.U // For WB_rd / WB_rd
     }.elsewhen(hz_WB.rd === io.rs1) {
