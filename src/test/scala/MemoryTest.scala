@@ -1,4 +1,5 @@
 import chisel3._
+import chisel3.util._
 import chiseltest._
 import lib.ReadAssembly
 import org.scalatest.flatspec.AnyFlatSpec
@@ -11,10 +12,11 @@ class MemoryTest extends AnyFlatSpec with ChiselScalatestTester {
     val BAUD = 9600
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/memTest.bin")
     test(new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val pc_max = 0x58
+      val pc_max = 0xFC
       while(dut.io.pc.peekInt <= pc_max) {
         dut.clock.step()
       }
+      dut.io.regs(7).expect(2004)
     }
   }
 }
