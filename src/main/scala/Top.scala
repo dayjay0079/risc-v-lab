@@ -24,6 +24,10 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
     val pc = Output(UInt(32.W))
     val branch = Output(Bool()) //Test val
     val imm = Output(SInt(32.W))
+
+    val EX_control = Output(UInt(4.W)) // test val
+    val stall_ID = Output(Bool()) // test val
+    val stall_IF = Output(Bool()) // test val
   })
   val IF = Module(new Stage1_IF(program, fpga))
   val ID = Module(new Stage2_ID(fpga))
@@ -67,4 +71,8 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   io.regs := ID.io.regs
   io.branch := EX.io.pc_update_bool
   io.imm := EX.io.imm
+
+  io.EX_control := ID.io.EX_control
+  io.stall_IF := ID.io.stall_IF
+  io.stall_ID := ID.io.stall_ID
 }
