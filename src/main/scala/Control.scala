@@ -57,7 +57,7 @@ class Control extends Module{
   import SType._
 
   object LType extends ChiselEnum {
-    val NL, LB, LH, LW, LB_U, LH_U = Value
+    val NL, LB, LH, LW, NL_U, LB_U, LH_U = Value
   }
   import LType._
 
@@ -113,9 +113,19 @@ class Control extends Module{
   }
 
   //Choose Instruction Type
-  inst_type := NaI.asUInt //Default instruction "Not an Instruction" zeroes outputs
   mem_store_type := NS.asUInt // Default value "No Store" for stage 4
   mem_load_type := NL.asUInt // Default value "No Load" for stage 4
+
+  when(opcode === U_Type_1) {
+    inst_type := LUI.asUInt
+  } .elsewhen(opcode === U_Type_2) {
+    inst_type := AUIPC.asUInt
+  } .elsewhen(opcode === J_Type) {
+    inst_type := JAL.asUInt
+  } .otherwise {
+    inst_type := NaI.asUInt //Default instruction "Not an Instruction" zeroes outputs
+  }
+
   switch(funct3) {
     is("x0".U) {
       switch(opcode) {
@@ -125,9 +135,6 @@ class Control extends Module{
         is(I_Type_3) { inst_type := JAL.asUInt }
         is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SB.asUInt}
         is(B_Type) { inst_type := BEQ.asUInt }
-        is(U_Type_1) { inst_type := LUI.asUInt }
-        is(U_Type_2) { inst_type := AUIPC.asUInt }
-        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x1".U) {
@@ -137,9 +144,6 @@ class Control extends Module{
         is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LH.asUInt }
         is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SH.asUInt}
         is(B_Type) { inst_type := BNE.asUInt }
-        is(U_Type_1) { inst_type := LUI.asUInt }
-        is(U_Type_2) { inst_type := AUIPC.asUInt }
-        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x2".U) {
@@ -148,18 +152,12 @@ class Control extends Module{
         is(I_Type_1) { inst_type := SLT.asUInt }
         is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LW.asUInt }
         is(S_Type) { inst_type := ADD.asUInt; mem_store_type := SW.asUInt}
-        is(U_Type_1) { inst_type := LUI.asUInt }
-        is(U_Type_2) { inst_type := AUIPC.asUInt }
-        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x3".U) {
       switch(opcode) {
         is(R_Type) { inst_type := Mux(funct7_type00, SLTU.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := SLTU.asUInt }
-        is(U_Type_1) { inst_type := LUI.asUInt }
-        is(U_Type_2) { inst_type := AUIPC.asUInt }
-        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x4".U) {
@@ -168,9 +166,6 @@ class Control extends Module{
         is(I_Type_1) { inst_type := XOR.asUInt }
         is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LB_U.asUInt }
         is(B_Type) { inst_type := BLT.asUInt }
-        is(U_Type_1) { inst_type := LUI.asUInt }
-        is(U_Type_2) { inst_type := AUIPC.asUInt }
-        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x5".U) {
@@ -179,9 +174,6 @@ class Control extends Module{
         is(I_Type_1) { inst_type := Mux(imm_type00, SRL.asUInt, Mux(imm_type20, SRA.asUInt, NaI.asUInt)) }
         is(I_Type_2) { inst_type := ADD.asUInt; mem_load_type := LH_U.asUInt }
         is(B_Type) { inst_type := BGE.asUInt }
-        is(U_Type_1) { inst_type := LUI.asUInt }
-        is(U_Type_2) { inst_type := AUIPC.asUInt }
-        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x6".U) {
@@ -189,9 +181,6 @@ class Control extends Module{
         is(R_Type) { inst_type := Mux(funct7_type00, OR.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := OR.asUInt }
         is(B_Type) { inst_type := BLTU.asUInt }
-        is(U_Type_1) { inst_type := LUI.asUInt }
-        is(U_Type_2) { inst_type := AUIPC.asUInt }
-        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
     is("x7".U) {
@@ -199,9 +188,6 @@ class Control extends Module{
         is(R_Type) { inst_type := Mux(funct7_type00, AND.asUInt, NaI.asUInt) }
         is(I_Type_1) { inst_type := AND.asUInt }
         is(B_Type) { inst_type := BGEU.asUInt }
-        is(U_Type_1) { inst_type := LUI.asUInt }
-        is(U_Type_2) { inst_type := AUIPC.asUInt }
-        is(J_Type) {inst_type := JAL.asUInt}
       }
     }
   }

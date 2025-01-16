@@ -111,9 +111,9 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
   }
 
   // Load Init
-  val sign_extension : Bool = 1.B //io.ctrl_in.load_type(2) TEMP!!! UNSIGNED LOGIC ShOULD BE MADE
   val load_type = RegNext(io.ctrl_in.load_type(1,0))
   val byte_offset_load = RegNext(byte_offset)
+  val sign_extension = RegNext(!io.ctrl_in.load_type(2))
 
   // Load Byte
   when(load_type === LOAD_BYTE) {
