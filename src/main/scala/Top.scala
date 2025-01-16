@@ -11,24 +11,25 @@ object Top extends App {
   val MEM_SIZE = 1024
   val FREQ = 100000000
   val BAUD = 9600
-  val PROGRAM_NAME = "addi5.bin"
+  val LED_CNT = 16
+  val PROGRAM_NAME = "leds.bin"
   val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/" + PROGRAM_NAME)
   emitVerilog(
-    new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD),
+    new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD, LED_CNT),
     Array("--target-dir", "generated")
   )
 }
 
-class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
+class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
     val uart = UartPins()
-    val leds = Output(UInt(16.W))
+    val leds = Output(Vec(led_cnt, Bool()))
   })
 
   val IF = Module(new Stage1_IF(program, fpga))
   val ID = Module(new Stage2_ID(fpga))
   val EX = Module(new Stage3_EX(fpga))
-  val MEM = Module(new Stage4_MEM(fpga, mem_size))
+  val MEM = Module(new Stage4_MEM(fpga, mem_size, freq, baud, led_cnt))
   val WB = Module(new Stage5_WB(fpga))
 
   // Stage 1: Instruction Fetch
@@ -61,6 +62,8 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   WB.io.pipeline_vals.rd := MEM.io.rd_out
   WB.io.pipeline_vals.ctrl := MEM.io.ctrl_out
 
-  // Output for testing
-//  io.pc := IF.io.pc
+  // Top output
+  io.uart <> MEM.io.uart
+//  io.leds := MEM.io.leds.asBools
+  io.leds := VecInit(Seq.fill(16)(true.B))
 }

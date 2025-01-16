@@ -3,7 +3,7 @@ import chisel3.util._
 
 class MemoryArbiter extends Module {
   val io = IO(new Bundle{
-    val address_in = Input(UInt(32.W))
+    val address_in = Input(SInt(32.W))
     val address_out = Output(UInt(32.W))
     val valid_mem = Output(Bool())
     val valid_led = Output(Bool())

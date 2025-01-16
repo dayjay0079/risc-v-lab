@@ -19,10 +19,16 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
     val ctrl_out = Output(new ControlBus)
   })
 
+  val STORE_BYTE = 1.U
+  val STORE_HALFWORD = 2.U
+  val STORE_WORD = 3.U
+  val LOAD_BYTE = 1.U
+  val LOAD_HALFWORD = 2.U
+  val LOAD_WORD = 3.U
+
   val memory_arbiter = Module(new MemoryArbiter)
   memory_arbiter.io.address_in := io.data_in
 
-  val stringStreamer = StringStreamer("Hello World!\n\r")
   //// Memory mapped UART
   // Initialize UART connection
   val mmUart = MemoryMappedUart(
@@ -31,25 +37,25 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
     txBufferDepth = 8,
     rxBufferDepth = 8
   )
-  stringStreamer.io.port <> mmUart.io.port
+  mmUart.io.port.addr := memory_arbiter.io.address_out
+  mmUart.io.port.wrData := io.data_write.asUInt
+  mmUart.io.port.read := io.ctrl_in.load_type === LOAD_WORD && memory_arbiter.io.valid_uart
+  mmUart.io.port.write := io.ctrl_in.store_type === STORE_WORD && memory_arbiter.io.valid_uart
   io.uart <> mmUart.io.pins
 
   //// Memory mapped leds
   val mmLeds = Module(new MemoryMappedLeds(led_cnt))
-  mmLeds.io.port := memory_arbiter.io.address_out
+  mmLeds.io.port.addr := memory_arbiter.io.address_out
+  mmLeds.io.port.wrData := io.data_write(led_cnt-1, 0).asUInt
+  mmLeds.io.port.read := io.ctrl_in.load_type === LOAD_WORD && memory_arbiter.io.valid_led
+  mmLeds.io.port.write := io.ctrl_in.store_type === STORE_WORD && memory_arbiter.io.valid_led
 
   // Data memory
   val data_memory = Seq.fill(4)(Module(new MemoryData(fpga, mem_size)))
 
   // Calculate data to write
-  val STORE_BYTE = 1.U
-  val STORE_HALFWORD = 2.U
-  val STORE_WORD = 3.U
-  val LOAD_BYTE = 1.U
-  val LOAD_HALFWORD = 2.U
-  val LOAD_WORD = 3.U
 
-  val address = io.data_in.asUInt & "xFFFFFFFC".U
+  val address = memory_arbiter.io.address_out & "xFFFFFFFC".U
   val byte_offset = io.data_in(1, 0)
   val write_data = VecInit(io.data_write(7, 0).asSInt, io.data_write(15, 8).asSInt,
                            io.data_write(23, 16).asSInt, io.data_write(31, 24).asSInt)
@@ -60,7 +66,7 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
   val load_word = WireDefault(0.S(32.W))
   val load_data = WireDefault(0.S(32.W))
 
-  val store_type = io.ctrl_in.store_type
+  val store_type = Mux(memory_arbiter.io.valid_mem, io.ctrl_in.store_type, 0.U)
 
   // Initialize memory defaults
   for (mem <- data_memory) {
@@ -100,18 +106,24 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
 
   // Store Word
   when(store_type === STORE_WORD) {
-    (0 until 4).foreach { i =>
-      when(byte_offset === i.U) {
-        for (j <- 0 until 4) {
-          data_memory((i + j) % 4).io.data_in := write_data(j)
-          data_memory((i + j) % 4).io.write_enable := true.B
+    when(memory_arbiter.io.valid_mem) {
+      (0 until 4).foreach { i =>
+        when(byte_offset === i.U) {
+          for (j <- 0 until 4) {
+            data_memory((i + j) % 4).io.data_in := write_data(j)
+            data_memory((i + j) % 4).io.write_enable := true.B
+          }
         }
       }
+    } .elsewhen(memory_arbiter.io.valid_led) {
+      mmLeds.io.port.write := true.B
+    } .elsewhen(memory_arbiter.io.valid_uart) {
+      mmUart.io.port.write := true.B
     }
   }
 
   // Load Init
-  val load_type = RegNext(io.ctrl_in.load_type(1,0))
+  val load_type = RegNext(Mux(memory_arbiter.io.valid_mem, io.ctrl_in.load_type(1,0), 0.U))
   val byte_offset_load = RegNext(byte_offset)
   val sign_extension = RegNext(!io.ctrl_in.load_type(2))
 
@@ -139,16 +151,20 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
 
   // Load Word
   when(load_type === LOAD_WORD) {
-    (0 until 4).foreach { i =>
-      when(byte_offset_load === i.U) {
-        load_word := Cat(data_memory((i + 3) % 4).io.data_out, data_memory((i + 2) % 4).io.data_out,
-                         data_memory((i + 1) % 4).io.data_out, data_memory(i).io.data_out).asSInt
+    when(memory_arbiter.io.valid_mem) {
+      (0 until 4).foreach { i =>
+        when(byte_offset_load === i.U) {
+          load_word := Cat(data_memory((i + 3) % 4).io.data_out, data_memory((i + 2) % 4).io.data_out,
+            data_memory((i + 1) % 4).io.data_out, data_memory(i).io.data_out).asSInt
+        }
       }
+      load_data := load_word.asSInt
     }
-    load_data := load_word.asSInt
   }
 
   // Output
+  io.leds := mmLeds.io.pins
+  io.uart <> mmUart.io.pins
   io.data_out_mem := load_data
   io.data_out_alu := RegNext(io.data_in)
   io.rd_out := RegNext(io.rd_in)
