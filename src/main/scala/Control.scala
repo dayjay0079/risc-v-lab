@@ -216,6 +216,7 @@ class Control extends Module{
     }
   }
 
+  // Branch "prediction" - currently branch is assumed taken
   when(opcode === B_Type) {
     io.ctrl.pc_prediction := (io.pc.asSInt + imm).asUInt
     io.ctrl.branch_taken := true.B
