@@ -1,4 +1,3 @@
-loop:
 lui x1, 0x5
 nop
 nop
@@ -11,8 +10,8 @@ nop
 nop
 nop
 sw x1, 0(x2)
-lw x3, 0(x2)
-jal x0, loop
+loop:
+beq x0, x0, loop
 nop
 nop
 nop

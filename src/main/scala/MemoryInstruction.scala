@@ -8,7 +8,7 @@ class MemoryInstruction(program: Seq[Int], fpga: Boolean) extends Module {
   })
 
   // Initialize the instruciton memory as a vector of wires
-  private val IM = VecInit(program.map(value => (value & 0xFFFFFFFFL).asUInt(32.W))) // Type: Vec
+  val IM = WireDefault(VecInit(program.map(value => (value & 0xFFFFFFFFL).asUInt(32.W)))) // Type: Vec
   
   // Delay the output by 1 clock cycle
   io.instruction := RegNext(IM((io.pc >> 2.U).asUInt))

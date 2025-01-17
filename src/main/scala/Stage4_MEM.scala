@@ -49,8 +49,9 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
   mmLeds.io.port.wrData := io.data_write(led_cnt-1, 0).asUInt
   mmLeds.io.port.read := io.ctrl_in.load_type === LOAD_WORD && memory_arbiter.io.valid_led
   mmLeds.io.port.write := io.ctrl_in.store_type === STORE_WORD && memory_arbiter.io.valid_led
+  io.leds := mmLeds.io.pins
 
-  // Data memory
+  //// Data memory
   val data_memory = Seq.fill(4)(Module(new MemoryData(fpga, mem_size)))
 
   // Calculate data to write
@@ -115,10 +116,6 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
           }
         }
       }
-    } .elsewhen(memory_arbiter.io.valid_led) {
-      mmLeds.io.port.write := true.B
-    } .elsewhen(memory_arbiter.io.valid_uart) {
-      mmUart.io.port.write := true.B
     }
   }
 
@@ -163,8 +160,6 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
   }
 
   // Output
-  io.leds := mmLeds.io.pins
-  io.uart <> mmUart.io.pins
   io.data_out_mem := load_data
   io.data_out_alu := RegNext(io.data_in)
   io.rd_out := RegNext(io.rd_in)

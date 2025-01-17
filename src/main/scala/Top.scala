@@ -12,8 +12,7 @@ object Top extends App {
   val FREQ = 100000000
   val BAUD = 9600
   val LED_CNT = 16
-  val PROGRAM_NAME = "leds.bin"
-  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/" + PROGRAM_NAME)
+  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/leds.bin")
   emitVerilog(
     new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD, LED_CNT),
     Array("--target-dir", "generated")
@@ -23,7 +22,7 @@ object Top extends App {
 class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
     val uart = UartPins()
-    val leds = Output(Vec(led_cnt, Bool()))
+    val leds = Output(UInt(led_cnt.W))
   })
 
   val IF = Module(new Stage1_IF(program, fpga))
@@ -64,6 +63,6 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int,
 
   // Top output
   io.uart <> MEM.io.uart
-//  io.leds := MEM.io.leds.asBools
-  io.leds := VecInit(Seq.fill(16)(true.B))
+  io.leds := MEM.io.leds
+//  io.leds := ("x5555".U(16.W))
 }
