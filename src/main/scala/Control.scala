@@ -4,10 +4,11 @@ import lib.ControlBus
 
 class Control extends Module{
   val io = IO(new Bundle{
+    val pc = Input(UInt(32.W))
     val instruction = Input(UInt(32.W))
+    val rd = Output(UInt(5.W))
     val rs1 = Output(UInt(5.W))
     val rs2 = Output(UInt(5.W))
-    val rd = Output(UInt(5.W))
     val imm = Output(SInt(32.W))
     val ctrl = Output(new ControlBus)
   })
@@ -213,5 +214,13 @@ class Control extends Module{
         is(B_Type) { inst_type := BGEU.asUInt }
       }
     }
+  }
+
+  when(opcode === B_Type) {
+    io.ctrl.pc_prediction := (io.pc.asSInt + imm).asUInt
+    io.ctrl.branch_taken := true.B
+  } .otherwise {
+    io.ctrl.pc_prediction := io.pc + 4.U
+    io.ctrl.branch_taken := false.B
   }
 }

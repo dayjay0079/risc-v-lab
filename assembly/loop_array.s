@@ -26,16 +26,21 @@ sw x28, 32(x1)
 addi x10, x0, 0
 lw x2, 0(x1)
 loop:
+    nop
+    nop
+    nop
+    nop
     blt  x2, x0, done
+    nop
+    nop
+    nop
+    nop
     addi x1, x1, 4
     nop
     nop
     nop
     add  x10, x10, x2
     lw   x2, 0(x1)
-    nop
-    nop
-    nop
     beq  x0, x0 loop
 done:
     nop

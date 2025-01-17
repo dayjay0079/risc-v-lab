@@ -18,6 +18,9 @@ class ALU extends Module{
   val data1 = io.input.data1
   val data2 = io.input.data2
 
+  val branch_taken = io.input.ctrl.branch_taken
+  val pc_prediction = io.input.ctrl.pc_prediction
+
   val pc_update_val = Wire(UInt(32.W))
   val pc_update_bool = Wire(Bool())
   val result = Wire(SInt(32.W))
@@ -64,7 +67,15 @@ class ALU extends Module{
     is(B_Type) {
       var1 := data1
       var2 := data2
-      pc_update_val := (pc.asSInt + imm).asUInt
+
+      when(branch_taken & !pc_update_bool) {
+        pc_update_val := (pc.asSInt + 4.S).asUInt
+        io.pc_update_bool := true.B
+      } .elsewhen(branch_taken & pc_update_bool) {
+        pc_update_val := pc_prediction + 4.U
+      } .elsewhen(!branch_taken & pc_update_bool) {
+        pc_update_val := (pc.asSInt + imm).asUInt
+      }
     }
     is(J_Type) {
       var1 := pc.asSInt
@@ -81,11 +92,6 @@ class ALU extends Module{
 
   // Choose arithmetic instruction type
   switch(inst_type) {
-    is(0.U) { //NaI
-      pc_update_val := DontCare
-      pc_update_bool := 0.B
-      result := 0.S
-    }
     is(1.U) { //ADD
       result := var1 + var2
     }

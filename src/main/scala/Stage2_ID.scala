@@ -23,6 +23,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
 
   // Isolate instruction fields
   val control = Module(new Control())
+  control.io.pc := io.pc
   control.io.instruction := io.instruction
 
   // Hazard Module
@@ -34,15 +35,8 @@ class Stage2_ID(fpga: Boolean) extends Module {
 
   // Bundle control values
   val ctrl = Wire(new ControlBus)
+  ctrl := control.io.ctrl
   ctrl.pc := io.pc
-  ctrl.opcode := control.io.ctrl.opcode
-  ctrl.funct3 := control.io.ctrl.funct3
-  ctrl.funct7 := control.io.ctrl.funct7
-  ctrl.inst_type := control.io.ctrl.inst_type
-  ctrl.write_enable_reg := control.io.ctrl.write_enable_reg
-  ctrl.store_type := control.io.ctrl.store_type
-  ctrl.load_type := control.io.ctrl.load_type
-  ctrl.mem_to_reg := control.io.ctrl.mem_to_reg
 
   // Read from registers
   val reg_file = Module(new RegisterFile(fpga))
