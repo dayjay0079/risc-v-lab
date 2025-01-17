@@ -2,10 +2,6 @@ import chisel3._
 import chisel3.util._
 import lib.ControlBus
 
-// TODO
-// Write-enable for registers (ID stage) and memory (MEM stage)
-// memTOReg boolean for write-back
-
 class Control extends Module{
   val io = IO(new Bundle{
     val instruction = Input(UInt(32.W))
@@ -16,14 +12,14 @@ class Control extends Module{
     val ctrl = Output(new ControlBus)
   })
 
-  // Default Output values
+  // Instruction fields
+  val rd = WireDefault(0.U(5.W))
+  val rs1 = WireDefault(0.U(5.W))
+  val rs2 = WireDefault(0.U(5.W))
   val imm = WireDefault(0.S(32.W))
-  val opcode = io.instruction(6, 0)
-  val funct3 = io.instruction(14, 12)
-  val funct7 = io.instruction(31, 25)
-  io.rs1 := io.instruction(19, 15)
-  io.rs2 := io.instruction(24, 20)
-  io.rd := io.instruction(11, 7)
+  val opcode = WireDefault(0.U(7.W))
+  val funct3 = WireDefault(0.U(3.W))
+  val funct7 = WireDefault(0.U(7.W))
 
   // Control values
   val inst_type = WireDefault(0.U(5.W))
@@ -33,6 +29,9 @@ class Control extends Module{
   val mem_to_reg = WireDefault(0.B)
 
   // I/O Connections
+  io.rd := rd
+  io.rs1 := rs1
+  io.rs2 := rs2
   io.imm := imm
   io.ctrl.pc := DontCare
   io.ctrl.opcode := opcode
@@ -72,17 +71,41 @@ class Control extends Module{
   val U_Type_1 = "b0110111".U   // lui
   val U_Type_2 = "b0010111".U   // auipc
 
-  //Bool statements for simplification
+  // Bool statements for simplification
   val funct7_type00 = funct7 === "x00".U
   val funct7_type20 = funct7 === "x20".U
   val imm_type00 = imm(11,5) === "x00".U
   val imm_type20 = imm(11,5) === "x20".U
 
-  //Assign immediate values depending on instruction type
+  // Assign opcode
+  opcode := io.instruction(6, 0)
+
+  // Assign register values depending on opcode
   switch(opcode) {
     is(R_Type) {
-      // Default Case, is assigned outside of switch statement
+      rd := io.instruction(11, 7)
+      rs1 := io.instruction(19, 15)
+      rs2 := io.instruction(24, 20)
+      funct3 := io.instruction(14, 12)
+      funct7 := io.instruction(31, 25)
     }
+    is(I_Type_1, I_Type_2, I_Type_3) {
+      rd := io.instruction(11, 7)
+      rs1 := io.instruction(19, 15)
+      funct3 := io.instruction(14, 12)
+    }
+    is(S_Type, B_Type) {
+      rs1 := io.instruction(19, 15)
+      rs2 := io.instruction(24, 20)
+      funct3 := io.instruction(14, 12)
+    }
+    is(U_Type_1, U_Type_2, J_Type) {
+      rd := io.instruction(11, 7)
+    }
+  }
+
+  //Assign immediate values depending on opcode
+  switch(opcode) {
     is(I_Type_1) {
       imm := io.instruction(31, 20).asSInt
     }
