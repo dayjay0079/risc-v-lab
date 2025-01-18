@@ -12,7 +12,7 @@ object Top extends App {
   val FREQ = 100000000
   val BAUD = 9600
   val LED_CNT = 16
-  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/leds.bin")
+  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/MMSwitchTest.bin")
   emitVerilog(
     new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD, LED_CNT),
     Array("--target-dir", "generated")
@@ -21,6 +21,8 @@ object Top extends App {
 
 class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
+    val switches = Input(UInt(16.W))
+    val buttons = Input(UInt(4.W))
     val uart = UartPins()
     val leds = Output(UInt(led_cnt.W))
   })
@@ -50,6 +52,8 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int,
   EX.io.pipeline_vals.ctrl := ID.io.ctrl
 
   // Stage 4: Memory access (if necessary)
+  MEM.io.switches := io.switches
+  MEM.io.buttons := io.buttons
   MEM.io.data_write := EX.io.data_out_reg2
   MEM.io.data_in := EX.io.data_out_alu
   MEM.io.rd_in := EX.io.rd

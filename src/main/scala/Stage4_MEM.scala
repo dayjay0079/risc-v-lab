@@ -2,10 +2,12 @@ import chisel3._
 import chisel3.util._
 import lib.ControlBus
 import lib.peripherals.MemoryMappedUart.UartPins
-import lib.peripherals.{MemoryMappedLeds, MemoryMappedUart, StringStreamer}
+import lib.peripherals.{MemoryMappedInput, MemoryMappedLeds, MemoryMappedUart, StringStreamer}
 
 class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
+    val switches = Input(UInt(16.W))
+    val buttons = Input(UInt(4.W))
     val uart = UartPins()
     val leds = Output(UInt(led_cnt.W))
 
@@ -25,11 +27,13 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
   val LOAD_BYTE = 1.U
   val LOAD_HALFWORD = 2.U
   val LOAD_WORD = 3.U
+  val LW = io.ctrl_in.load_type === LOAD_WORD
+  val SW = io.ctrl_in.store_type === STORE_WORD
 
   val memory_arbiter = Module(new MemoryArbiter)
   memory_arbiter.io.address_in := io.data_in
 
-  //// Memory mapped UART
+  //// Memory mapped UART (Addresses 2048-2052)
   // Initialize UART connection
   val mmUart = MemoryMappedUart(
     freq,
@@ -39,23 +43,31 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
   )
   mmUart.io.port.addr := memory_arbiter.io.address_out
   mmUart.io.port.wrData := io.data_write.asUInt
-  mmUart.io.port.read := io.ctrl_in.load_type === LOAD_WORD && memory_arbiter.io.valid_uart
-  mmUart.io.port.write := io.ctrl_in.store_type === STORE_WORD && memory_arbiter.io.valid_uart
+  mmUart.io.port.read := LW && memory_arbiter.io.valid_uart
+  mmUart.io.port.write := SW && memory_arbiter.io.valid_uart
   io.uart <> mmUart.io.pins
 
-  //// Memory mapped leds
+  //// Memory mapped leds (Address 1024)
   val mmLeds = Module(new MemoryMappedLeds(led_cnt))
   mmLeds.io.port.addr := memory_arbiter.io.address_out
   mmLeds.io.port.wrData := io.data_write(led_cnt-1, 0).asUInt
-  mmLeds.io.port.read := io.ctrl_in.load_type === LOAD_WORD && memory_arbiter.io.valid_led
-  mmLeds.io.port.write := io.ctrl_in.store_type === STORE_WORD && memory_arbiter.io.valid_led
+  mmLeds.io.port.read := LW && memory_arbiter.io.valid_led
+  mmLeds.io.port.write := SW && memory_arbiter.io.valid_led
   io.leds := mmLeds.io.pins
+
+  //// Memory mapped switches (Does not use bus) (Address 1025)
+  val mmSwitches = Module(new MemoryMappedInput(16))
+  mmSwitches.io.pins_in := io.switches
+
+  //// Memory mapped buttons (Does not use bus) (Address 1026)
+  val mmButtons = Module(new MemoryMappedInput(4))
+  mmButtons.io.pins_in := io.buttons
+
 
   //// Data memory
   val data_memory = Seq.fill(4)(Module(new MemoryData(fpga, mem_size)))
 
   // Calculate data to write
-
   val address = memory_arbiter.io.address_out & "xFFFFFFFC".U
   val byte_offset = io.data_in(1, 0)
   val write_data = VecInit(io.data_write(7, 0).asSInt, io.data_write(15, 8).asSInt,
@@ -160,7 +172,15 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
   }
 
   // Output
-  io.data_out_mem := load_data
+  when(RegNext(memory_arbiter.io.valid_mem)) {
+    io.data_out_mem := load_data
+  } .elsewhen(RegNext(memory_arbiter.io.valid_switches)) {
+    io.data_out_mem := mmSwitches.io.pins_out.asSInt
+  } .elsewhen(RegNext(memory_arbiter.io.valid_buttons)) {
+    io.data_out_mem := mmButtons.io.pins_out.asSInt
+  } .otherwise {
+    io.data_out_mem := 0.S
+  }
   io.data_out_alu := RegNext(io.data_in)
   io.rd_out := RegNext(io.rd_in)
   io.ctrl_out := RegNext(io.ctrl_in)

@@ -1,0 +1,3 @@
+Game of Life
+1D pong
+Toads and Frogs (PWM the LEDs to signal teams) https://en.wikipedia.org/wiki/Toads_and_Frogs
