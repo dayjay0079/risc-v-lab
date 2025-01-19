@@ -12,7 +12,7 @@ object Top extends App {
   val FREQ = 100000000
   val BAUD = 9600
   val LED_CNT = 16
-  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/MMSwitchTest.bin")
+  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/gol.bin")
   emitVerilog(
     new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD, LED_CNT),
     Array("--target-dir", "generated")

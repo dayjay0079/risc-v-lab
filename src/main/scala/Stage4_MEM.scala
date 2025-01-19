@@ -175,9 +175,9 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
   when(RegNext(memory_arbiter.io.valid_mem)) {
     io.data_out_mem := load_data
   } .elsewhen(RegNext(memory_arbiter.io.valid_switches)) {
-    io.data_out_mem := mmSwitches.io.pins_out.asSInt
+    io.data_out_mem := Cat(0.U, mmSwitches.io.pins_out).asSInt
   } .elsewhen(RegNext(memory_arbiter.io.valid_buttons)) {
-    io.data_out_mem := mmButtons.io.pins_out.asSInt
+    io.data_out_mem := Cat(0.U, mmButtons.io.pins_out).asSInt
   } .otherwise {
     io.data_out_mem := 0.S
   }
