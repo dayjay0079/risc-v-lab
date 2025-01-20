@@ -16,8 +16,7 @@ class Hazards extends Module{
 
     // Outputs
     val EX_control = Output(UInt(4.W))
-    val stall_IF = Output(Bool())
-    val stall_ID = Output(Bool())
+    val stall = Output(Bool())
   })
 
   // instruction types:
@@ -43,24 +42,22 @@ class Hazards extends Module{
 
   // Stall booleans:
   val stall_counter = RegInit(0.U(1.W)) // 2-bit counter for double stall
-  io.stall_ID := false.B
-  io.stall_IF := false.B
+  io.stall := false.B //maybe change?
 
   // Decrement with 1 pr cycle and stall_IF to true
   when(stall_counter > 0.U) {
     stall_counter := stall_counter - 1.U
-    io.stall_IF := true.B
+    io.stall := true.B
   }
 
   // Stall ID and IF once for load-use hazard
   when(hz_EX.opcode === I_Type_2 && (hz_EX.rd === io.rs1 || hz_EX.rd === io.rs2)) {
-    io.stall_ID := true.B
-    io.stall_IF := true.B
+    io.stall := true.B
   }
 
   // Stall IF twice for Branching (not branch-prediction compatible)
   when(hz_ID.opcode === B_Type) {
-    io.stall_IF := true.B
+    io.stall := true.B
     stall_counter := 1.U
   }
 

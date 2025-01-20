@@ -26,8 +26,6 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
     val imm = Output(SInt(32.W))
 
     val EX_control = Output(UInt(4.W)) // test val
-    val stall_ID = Output(Bool()) // test val
-    val stall_IF = Output(Bool()) // test val
   })
   val IF = Module(new Stage1_IF(program, fpga))
   val ID = Module(new Stage2_ID(fpga))
@@ -40,6 +38,7 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   IF.io.pc_prediction := ID.io.ctrl.pc_prediction
   IF.io.pc_update_bool := EX.io.pc_update_bool
   IF.io.pc_update_val := EX.io.pc_update_val
+  IF.io.stall := ID.io.stall
 
   // Stage 2: Instruction Decode
   ID.io.instruction := IF.io.instruction
@@ -75,6 +74,4 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   io.imm := EX.io.imm
 
   io.EX_control := ID.io.EX_control
-  io.stall_IF := ID.io.stall_IF
-  io.stall_ID := ID.io.stall_ID
 }

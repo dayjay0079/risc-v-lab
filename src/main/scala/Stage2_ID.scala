@@ -17,14 +17,19 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val ctrl = Output(new ControlBus)
     val regs = Output(Vec(32, SInt(32.W))) // Only passed for debugging
     val EX_control = Output(UInt(4.W)) // test output hazards
-    val stall_IF = Output(Bool()) // test output hazards
-    val stall_ID = Output(Bool()) // test output hazards
+    val stall = Output(Bool())
   })
+
+  val stall_reg = RegInit(false.B)
 
   // Isolate instruction fields
   val control = Module(new Control())
   control.io.pc := io.pc
-  control.io.instruction := io.instruction
+  when (stall_reg) {
+    control.io.instruction := "x13".U
+  } .otherwise{
+    control.io.instruction := io.instruction
+  }
 
   // Hazard Module
   val hazard = Module(new Hazards())
@@ -32,6 +37,9 @@ class Stage2_ID(fpga: Boolean) extends Module {
   hazard.io.rs2 := control.io.rs2
   hazard.io.rd := control.io.rd
   hazard.io.ctrl := control.io.ctrl
+
+  val stall = hazard.io.stall
+  stall_reg := stall
 
   // Bundle control values
   val ctrl = Wire(new ControlBus)
@@ -58,7 +66,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
   io.regs := reg_file.io.regs
 
   // Output for testing
-  io.EX_control := hazard.io.EX_control
-  io.stall_IF := hazard.io.stall_IF
-  io.stall_ID := hazard.io.stall_ID
+  io.EX_control := RegNext(hazard.io.EX_control)
+  io.stall := stall_reg
 }
