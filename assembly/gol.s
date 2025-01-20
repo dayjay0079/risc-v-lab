@@ -3,9 +3,10 @@
 # A living cell survives if it has 2 or 4 Y-neighbors
 
 start:
-    addi t0, x0, 0b0001
-    lw a0, 1025(x0)    # Switches
-    lw a1, 1026(x0)    # Buttons
+    addi t0, x0, 0b0001 # Bit mesh for button
+    addi s10, x0, 0     # Iteration counter
+    lw a0, 1025(x0)     # Switches
+    lw a1, 1026(x0)     # Buttons
     nop
     nop
     nop
@@ -23,9 +24,15 @@ start:
     nop
     
 init_exec:
-    sw a0, 1024(x0) # LEDs
+    sw a0, 1024(x0)  # LEDs
+    sw s10, 1027(x0) # Seven Segment Display
+    beq a0, x0, done
+    nop
+    nop
+    nop
+    nop    
     slli, a3, a0, 2
-    addi a1, x0, 0  # Counter
+    addi a1, x0, 0  # Loop counter
     addi a2, x0, 16 # Loop limit
     addi x1, x0, 1
     addi x2, x0, 2
@@ -132,14 +139,15 @@ continue:
     nop
     
     # Load waiting period counter 
-    #lui s11, 0x5FF
+    lui s11, 0x5FF
     nop
     nop    
     nop
     nop
-    addi s11, x0, 0xFF
+    addi s11, s11, 0xFF
     
-    # Prepare 
+    # Prepare
+    addi s10, s10, 1 # Increment iterations
     add a0, x0, a7 # Copy result into argument
     add t0, x0, x0 # Init wait counter
     nop
@@ -159,6 +167,12 @@ wait:
     nop
     nop
     jal x0, init_exec
+    nop
+    nop
+    nop
+    nop
+done:
+    jal x0, done
     nop
     nop
     nop

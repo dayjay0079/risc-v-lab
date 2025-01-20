@@ -2,7 +2,7 @@ import chisel3._
 import chisel3.util._
 import lib.ControlBus
 import lib.peripherals.MemoryMappedUart.UartPins
-import lib.peripherals.{MemoryMappedInput, MemoryMappedLeds, MemoryMappedUart, StringStreamer}
+import lib.peripherals.{MemoryMappedInput, MemoryMappedLeds, MemoryMappedSevenSegment, MemoryMappedUart, StringStreamer}
 
 class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
@@ -10,6 +10,8 @@ class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Modu
     val buttons = Input(UInt(4.W))
     val uart = UartPins()
     val leds = Output(UInt(led_cnt.W))
+    val sevSeg_value = Output(UInt(8.W))
+    val sevSeg_anode = Output(UInt(4.W))
 
     val data_write = Input(SInt(32.W))
     val data_in = Input(SInt(32.W))
@@ -63,6 +65,14 @@ class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Modu
   val mmButtons = Module(new MemoryMappedInput(4))
   mmButtons.io.pins_in := io.buttons
 
+  //// Memory mapped seven segmet display (Address 1027)
+  val mmSevSeg = Module(new MemoryMappedSevenSegment)
+  mmSevSeg.io.port.addr := memory_arbiter.io.address_out
+  mmSevSeg.io.port.wrData := io.data_write(15, 0).asUInt
+  mmSevSeg.io.port.read := LW && memory_arbiter.io.valid_sevseg
+  mmSevSeg.io.port.write := SW && memory_arbiter.io.valid_sevseg
+  io.sevSeg_value := mmSevSeg.io.display
+  io.sevSeg_anode := mmSevSeg.io.anode
 
   //// Data memory
   val data_memory = Seq.fill(4)(Module(new MemoryData(mem_size)))

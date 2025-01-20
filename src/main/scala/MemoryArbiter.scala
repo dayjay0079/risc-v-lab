@@ -10,6 +10,7 @@ class MemoryArbiter extends Module {
     val valid_uart = Output(Bool())
     val valid_switches = Output(Bool())
     val valid_buttons = Output(Bool())
+    val valid_sevseg = Output(Bool())
   })
 
   io.address_out := io.address_in(9, 0)
@@ -18,5 +19,6 @@ class MemoryArbiter extends Module {
   io.valid_led := io.address_in === 1024.S
   io.valid_switches := io.address_in === 1025.S
   io.valid_buttons := io.address_in === 1026.S
+  io.valid_sevseg := io.address_in === 1027.S
   io.valid_uart := io.address_in >= 2048.S && io.address_in < 2052.S
 }
