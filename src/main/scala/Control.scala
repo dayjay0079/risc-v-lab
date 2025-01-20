@@ -43,6 +43,8 @@ class Control extends Module{
   io.ctrl.store_type := mem_store_type
   io.ctrl.load_type := mem_load_type
   io.ctrl.mem_to_reg := mem_to_reg
+  io.ctrl.branch_taken := DontCare
+  io.ctrl.pc_prediction := DontCare
 
   //Enumeration of Instruction Types
   object InstructionType extends ChiselEnum {
@@ -214,14 +216,5 @@ class Control extends Module{
         is(B_Type) { inst_type := BGEU.asUInt }
       }
     }
-  }
-
-  // Branch "prediction" - currently branch is assumed taken
-  when(opcode === B_Type) {
-    io.ctrl.pc_prediction := (io.pc.asSInt + imm).asUInt
-    io.ctrl.branch_taken := true.B
-  } .otherwise {
-    io.ctrl.pc_prediction := io.pc + 4.U
-    io.ctrl.branch_taken := false.B
   }
 }

@@ -34,8 +34,6 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   val WB = Module(new Stage5_WB(fpga))
 
   // Stage 1: Instruction Fetch
-  IF.io.branch_taken := ID.io.ctrl.branch_taken
-  IF.io.pc_prediction := ID.io.ctrl.pc_prediction
   IF.io.pc_update_bool := EX.io.pc_update_bool
   IF.io.pc_update_val := EX.io.pc_update_val
   IF.io.stall := ID.io.stall
@@ -46,6 +44,8 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   ID.io.data_in := WB.io.data_out
   ID.io.write_enable := WB.io.write_enable
   ID.io.pc := IF.io.pc_reg
+  ID.io.branch_taken := IF.io.branch_taken
+  ID.io.pc_prediction := IF.io.pc_prediction
 
   // Stage 3: Execute operation/Calculate address
   EX.io.pipeline_vals.data1 := ID.io.data_out1

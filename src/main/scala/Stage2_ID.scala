@@ -9,6 +9,8 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val data_in = Input(SInt(32.W))
     val pc = Input(UInt(32.W))
     val write_enable = Input(Bool())
+    val branch_taken = Input(Bool())
+    val pc_prediction = Input(UInt(32.W))
 
     val data_out1 = Output(SInt(32.W))
     val data_out2 = Output(SInt(32.W))
@@ -62,6 +64,8 @@ class Stage2_ID(fpga: Boolean) extends Module {
     ctrl := control.io.ctrl
   }
   ctrl.pc := io.pc
+  ctrl.branch_taken := io.branch_taken
+  ctrl.pc_prediction := io.pc_prediction
 
   // Read from registers
   val reg_file = Module(new RegisterFile(fpga))

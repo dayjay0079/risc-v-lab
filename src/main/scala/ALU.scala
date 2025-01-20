@@ -72,7 +72,7 @@ class ALU extends Module{
         pc_update_val := (pc.asSInt + 4.S).asUInt
         io.pc_update_bool := true.B
       } .elsewhen(branch_taken & pc_update_bool) {
-        pc_update_val := pc_prediction + 4.U
+        pc_update_val := pc_prediction + 8.U
       } .elsewhen(!branch_taken & pc_update_bool) {
         pc_update_val := (pc.asSInt + imm).asUInt
       }
