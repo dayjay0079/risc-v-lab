@@ -69,10 +69,10 @@ class Hazards extends Module{
   }
 
   // Stall IF twice for Branching (not branch-prediction compatible)
-  when(hz_ID.opcode === B_Type) {
-    io.stall := true.B
-    stall_counter := 1.U
-  }
+  //when(hz_EX.opcode === B_Type) {
+  //  io.stall := true.B
+  //  stall_counter := 1.U
+  //}
 
   // placeholder booleans
   val hz_EX_bool = (hz_EX.opcode === R_Type) | (hz_EX.opcode === I_Type_1) | (hz_EX.opcode === I_Type_2) | (hz_EX.opcode === I_Type_3) | (hz_EX.opcode === U_Type_1) | (hz_EX.opcode === U_Type_2)

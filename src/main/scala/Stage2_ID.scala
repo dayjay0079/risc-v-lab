@@ -31,7 +31,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
   val stall_reg = RegInit(false.B)
   val instruction = Wire(UInt(32.W))
   val instruction_reg = RegInit(0.U(32.W))
-  instruction_reg := instruction
+  instruction_reg := Mux(stall_reg, instruction_reg, instruction)
   stall_reg := stall
 
   // Isolate instruction fields
