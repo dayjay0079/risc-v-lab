@@ -29,17 +29,14 @@ nop
 loop:
     nop
     nop
-    nop
-    blt  x2, x0, done
     addi x1, x1, 4
-    nop
+    blt  x2, x0, done
     nop
     nop
     add  x10, x10, x2
     lw   x2, 0(x1)
     beq  x0, x0 loop
 done:
-    nop
     nop
     nop
     nop
