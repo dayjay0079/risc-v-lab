@@ -2,7 +2,7 @@ import chisel3._
 import chisel3.util._
 import lib.ControlBus
 
-class Stage2_ID(fpga: Boolean) extends Module {
+class Stage2_ID extends Module {
   val io = IO(new Bundle {
     val instruction = Input(UInt(32.W))
     val rd_in = Input(UInt(5.W))
@@ -41,7 +41,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
   ctrl.mem_to_reg := control.io.ctrl.mem_to_reg
 
   // Read from registers
-  val reg_file = Module(new RegisterFile(fpga))
+  val reg_file = Module(new RegisterFile)
   reg_file.io.rs1 := control.io.rs1
   reg_file.io.rs2 := control.io.rs2
 

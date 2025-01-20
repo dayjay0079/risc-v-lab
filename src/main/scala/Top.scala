@@ -7,19 +7,18 @@ import lib.peripherals.MemoryMappedUart.UartPins
 import lib.Bus
 
 object Top extends App {
-  val FPGA = true
   val MEM_SIZE = 1024
   val FREQ = 100000000
   val BAUD = 9600
   val LED_CNT = 16
   val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/gol.bin")
   emitVerilog(
-    new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD, LED_CNT),
+    new Top(PROGRAM, MEM_SIZE, FREQ, BAUD, LED_CNT),
     Array("--target-dir", "generated")
   )
 }
 
-class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
+class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
     val switches = Input(UInt(16.W))
     val buttons = Input(UInt(4.W))
@@ -27,11 +26,11 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int,
     val leds = Output(UInt(led_cnt.W))
   })
 
-  val IF = Module(new Stage1_IF(program, fpga))
-  val ID = Module(new Stage2_ID(fpga))
-  val EX = Module(new Stage3_EX(fpga))
-  val MEM = Module(new Stage4_MEM(fpga, mem_size, freq, baud, led_cnt))
-  val WB = Module(new Stage5_WB(fpga))
+  val IF = Module(new Stage1_IF(program))
+  val ID = Module(new Stage2_ID)
+  val EX = Module(new Stage3_EX)
+  val MEM = Module(new Stage4_MEM(mem_size, freq, baud, led_cnt))
+  val WB = Module(new Stage5_WB)
 
   // Stage 1: Instruction Fetch
   IF.io.pc_update_val := EX.io.pc_update_val
@@ -68,5 +67,4 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int,
   // Top output
   io.uart <> MEM.io.uart
   io.leds := MEM.io.leds
-//  io.leds := ("x5555".U(16.W))
 }

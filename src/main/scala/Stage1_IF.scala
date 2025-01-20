@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
+class Stage1_IF(program: Seq[Int]) extends Module {
   val io = IO(new Bundle{
     val pc_update_bool = Input(Bool())
     val pc_update_val = Input(UInt(32.W))
@@ -12,7 +12,7 @@ class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
   })
 
   // Initialize instruction memory with given program
-  val instruction_memory = Module(new MemoryInstruction(program, fpga))
+  val instruction_memory = Module(new MemoryInstruction(program))
 
   // Set up program counter circuit
   val pc_reg = RegInit(-4.S(32.W))

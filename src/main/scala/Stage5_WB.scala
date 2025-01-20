@@ -9,7 +9,7 @@ class PipelineValuesWB extends Bundle {
   val ctrl = new ControlBus
 }
 
-class Stage5_WB(fpga: Boolean) extends Module {
+class Stage5_WB extends Module {
   val io = IO(new Bundle{
     val pipeline_vals = Input(new PipelineValuesWB)
     val data_out = Output(SInt(32.W))

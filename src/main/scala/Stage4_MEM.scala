@@ -4,7 +4,7 @@ import lib.ControlBus
 import lib.peripherals.MemoryMappedUart.UartPins
 import lib.peripherals.{MemoryMappedInput, MemoryMappedLeds, MemoryMappedUart, StringStreamer}
 
-class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
+class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
     val switches = Input(UInt(16.W))
     val buttons = Input(UInt(4.W))
@@ -65,7 +65,7 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int, freq: Int, baud: Int, led_cnt: In
 
 
   //// Data memory
-  val data_memory = Seq.fill(4)(Module(new MemoryData(fpga, mem_size)))
+  val data_memory = Seq.fill(4)(Module(new MemoryData(mem_size)))
 
   // Calculate data to write
   val address = memory_arbiter.io.address_out & "xFFFFFFFC".U

@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class MemoryInstruction(program: Seq[Int], fpga: Boolean) extends Module {
+class MemoryInstruction(program: Seq[Int]) extends Module {
   val io = IO(new Bundle {
     val pc = Input(UInt(32.W))
     val instruction = Output(UInt(32.W))

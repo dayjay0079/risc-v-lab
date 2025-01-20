@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class RegisterFile(fpga: Boolean) extends Module {
+class RegisterFile extends Module {
   val io = IO(new Bundle{
     val rs1 = Input(UInt(5.W))
     val rs2 = Input(UInt(5.W))

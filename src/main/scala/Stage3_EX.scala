@@ -10,7 +10,7 @@ class PipelineValuesEX extends Bundle {
   val ctrl = new ControlBus
 }
 
-class Stage3_EX(fpga: Boolean) extends Module {
+class Stage3_EX extends Module {
   val io = IO(new Bundle{
     val pipeline_vals = Input(new PipelineValuesEX)
     val data_out_alu = Output(SInt(32.W))
