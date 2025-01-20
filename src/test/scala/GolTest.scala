@@ -17,7 +17,7 @@ class GolTest extends AnyFlatSpec with ChiselScalatestTester {
       dut.io.buttons.poke("b0101".U)
       dut.clock.step(1000)
       dut.io.buttons.poke("b0001".U)
-      dut.clock.step(1000)
+      dut.clock.step(30000)
     }
   }
 }
