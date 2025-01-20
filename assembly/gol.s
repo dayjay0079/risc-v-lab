@@ -132,12 +132,12 @@ continue:
     nop
     
     # Load waiting period counter 
-    lui s11, 0x5FF
+    #lui s11, 0x5FF
     nop
     nop    
     nop
     nop
-    addi s11, s11, 0x7FF
+    addi s11, x0, 0xFF
     
     # Prepare 
     add a0, x0, a7 # Copy result into argument
