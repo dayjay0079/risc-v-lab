@@ -5,6 +5,7 @@ class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
   val io = IO(new Bundle{
     val pc_update_bool = Input(Bool())
     val pc_update_val = Input(UInt(32.W))
+    val stall = Input(Bool())
 
     val instruction = Output(UInt(32.W))
     val pc_reg = Output(UInt(32.W))
@@ -24,7 +25,9 @@ class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
   val branch_predictor = Module(new BranchPrediction)
 
   // Set up program counter circuit
-  pc := Mux(io.pc_update_bool, io.pc_update_val, (pc_reg + 4.S).asUInt)
+  pc := Mux(io.pc_update_bool, io.pc_update_val,
+            Mux(io.stall, pc_reg.asUInt,
+                (pc_reg + 4.S).asUInt))
   pc_reg := pc.asSInt
 
   // Read instruction

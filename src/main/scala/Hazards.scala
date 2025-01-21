@@ -15,10 +15,22 @@ class Hazards extends Module{
     val ctrl = Input(new ControlBus)
 
     // Outputs
+    val ctrl_nop = Output(new ControlBus)
     val EX_control = Output(UInt(4.W))
-    val stall_IF = Output(Bool())
-    val stall_ID = Output(Bool())
+    val stall = Output(Bool())
   })
+  // NOP ctrl
+  io.ctrl_nop.pc := DontCare
+  io.ctrl_nop.pc_prediction := DontCare
+  io.ctrl_nop.opcode := "x13".U
+  io.ctrl_nop.funct3 := 0.U
+  io.ctrl_nop.funct7 := 0.U
+  io.ctrl_nop.inst_type := 1.U
+  io.ctrl_nop.store_type := DontCare
+  io.ctrl_nop.load_type := DontCare
+  io.ctrl_nop.mem_to_reg := DontCare
+  io.ctrl_nop.branch_taken := DontCare
+  io.ctrl_nop.write_enable_reg := DontCare
 
   // instruction types:
   val R_Type = "b0110011".U // Arithmetic/Logic
@@ -43,26 +55,24 @@ class Hazards extends Module{
 
   // Stall booleans:
   val stall_counter = RegInit(0.U(1.W)) // 2-bit counter for double stall
-  io.stall_ID := false.B
-  io.stall_IF := false.B
+  io.stall := false.B //maybe change?
 
   // Decrement with 1 pr cycle and stall_IF to true
   when(stall_counter > 0.U) {
     stall_counter := stall_counter - 1.U
-    io.stall_IF := true.B
+    io.stall := true.B
   }
 
   // Stall ID and IF once for load-use hazard
   when(hz_EX.opcode === I_Type_2 && (hz_EX.rd === io.rs1 || hz_EX.rd === io.rs2)) {
-    io.stall_ID := true.B
-    io.stall_IF := true.B
+    io.stall := true.B
   }
 
   // Stall IF twice for Branching (not branch-prediction compatible)
-  when(hz_ID.opcode === B_Type) {
-    io.stall_IF := true.B
-    stall_counter := 1.U
-  }
+  //when(hz_EX.opcode === B_Type) {
+  //  io.stall := true.B
+  //  stall_counter := 1.U
+  //}
 
   // placeholder booleans
   val hz_EX_bool = (hz_EX.opcode === R_Type) | (hz_EX.opcode === I_Type_1) | (hz_EX.opcode === I_Type_2) | (hz_EX.opcode === I_Type_3) | (hz_EX.opcode === U_Type_1) | (hz_EX.opcode === U_Type_2)

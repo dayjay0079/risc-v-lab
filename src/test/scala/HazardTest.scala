@@ -10,7 +10,7 @@ class HazardTest extends AnyFlatSpec with ChiselScalatestTester {
     val BAUD = 9600
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/Hz_test.bin")
     test(new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val pc_max = 0x38
+      val pc_max = 0x50
       while (dut.io.pc.peekInt <= pc_max) {
         dut.clock.step()
       }
