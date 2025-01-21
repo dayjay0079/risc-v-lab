@@ -114,3 +114,5 @@ nop
 nop
 nop
 nop
+
+addi x3, x1, 10

@@ -11,7 +11,7 @@ class PipelineTest_Algebraic extends AnyFlatSpec with ChiselScalatestTester {
     val BAUD = 9600
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/algebraic.bin")
     test(new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      while(dut.io.pc.peekInt <= 0) { //388
+      while(dut.io.pc.peekInt <= 408) {
         //Initialization
         if(dut.io.pc.peekInt === 28) {
           println("addi x1, x0, 12")
@@ -92,6 +92,10 @@ class PipelineTest_Algebraic extends AnyFlatSpec with ChiselScalatestTester {
         if(dut.io.pc.peekInt === 388) {
           println("sltiu x18, x4, 24")
           dut.io.regs(18).expect(0.S)
+        }
+        if(dut.io.pc.peekInt === 408) {
+          println("addi x3, x1, 10")
+          dut.io.regs(3).expect(34.S)
         }
 
         dut.clock.step()
