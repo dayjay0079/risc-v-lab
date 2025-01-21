@@ -1,13 +1,16 @@
 import chisel3._
 import chisel3.util._
+import lib.ControlBus
 
 class ALU extends Module{
   val io = IO(new Bundle{
     val input = Input(new PipelineValuesEX)
+
     val pc_update_val = Output(UInt(32.W))
     val pc_update_bool = Output(Bool())
     val result = Output(SInt(32.W))
     val flush = Output(Bool())
+    val ctrl_nop = Output(new ControlBus)
   })
 
   //Initialize I/O
@@ -34,6 +37,19 @@ class ALU extends Module{
   pc_update_val := DontCare
   pc_update_bool := 0.B
   result := 0.S
+
+  // "NOP" ControlBus values
+  io.ctrl_nop.pc := DontCare
+  io.ctrl_nop.pc_prediction := DontCare
+  io.ctrl_nop.opcode := "x13".U
+  io.ctrl_nop.funct3 := 0.U
+  io.ctrl_nop.funct7 := 0.U
+  io.ctrl_nop.inst_type := 1.U
+  io.ctrl_nop.store_type := DontCare
+  io.ctrl_nop.load_type := DontCare
+  io.ctrl_nop.mem_to_reg := DontCare
+  io.ctrl_nop.branch_taken := DontCare
+  io.ctrl_nop.write_enable_reg := DontCare
 
 
   // Instruction Types
