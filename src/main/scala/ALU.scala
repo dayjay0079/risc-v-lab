@@ -7,6 +7,7 @@ class ALU extends Module{
     val pc_update_val = Output(UInt(32.W))
     val pc_update_bool = Output(Bool())
     val result = Output(SInt(32.W))
+    val flush = Output(Bool())
   })
 
   //Initialize I/O
@@ -28,6 +29,7 @@ class ALU extends Module{
   io.pc_update_val := pc_update_val
   io.pc_update_bool := pc_update_bool
   io.result := result
+  io.flush := false.B
 
   pc_update_val := DontCare
   pc_update_bool := 0.B
@@ -71,6 +73,7 @@ class ALU extends Module{
       when(branch_taken & !pc_update_bool) {
         pc_update_val := (pc.asSInt + 4.S).asUInt
         io.pc_update_bool := true.B
+        io.flush := true.B
       } .elsewhen(branch_taken & pc_update_bool) {
         pc_update_val := pc_prediction + 8.U
       } .elsewhen(!branch_taken & pc_update_bool) {

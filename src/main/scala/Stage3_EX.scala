@@ -31,6 +31,12 @@ class Stage3_EX(fpga: Boolean) extends Module {
   val ALU = Module(new ALU)
   ALU.io.input := pipeline_regs
 
+  //Flushing logic
+  val counter = RegInit(0.U(2.W))
+  when(ALU.io.flush) {
+
+  }
+
   // Output
   io.data_out := ALU.io.result
   io.imm := pipeline_regs.imm // Debugging
