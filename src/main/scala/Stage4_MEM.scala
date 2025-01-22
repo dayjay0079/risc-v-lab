@@ -12,6 +12,7 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
     val data_out_alu = Output(SInt(32.W))
     val rd_out = Output(UInt(5.W))
     val ctrl_out = Output(new ControlBus)
+    val data_out_forward = Output(SInt(32.W))
   })
 
   // Data memory
@@ -125,8 +126,15 @@ class Stage4_MEM(fpga: Boolean, mem_size: Int) extends Module {
   }
 
   // Output
+  // Output
+  val rd_out = RegNext(io.rd_in)
+  val data_out_alu = RegNext(io.data_in)
+  val ctrl_out = RegNext(io.ctrl_in)
+
   io.data_out_mem := load_data
-  io.data_out_alu := RegNext(io.data_in)
-  io.rd_out := RegNext(io.rd_in)
-  io.ctrl_out := RegNext(io.ctrl_in)
+  io.data_out_alu := data_out_alu
+  io.rd_out := rd_out
+  io.ctrl_out := ctrl_out
+
+  io.data_out_forward := Mux(ctrl_out.mem_to_reg, load_data, data_out_alu)
 }

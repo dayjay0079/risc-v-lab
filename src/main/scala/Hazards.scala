@@ -74,36 +74,60 @@ class Hazards extends Module{
   val hz_WB_bool = (hz_WB.opcode === R_Type) | (hz_WB.opcode === I_Type_1) | (hz_WB.opcode === I_Type_2) | (hz_WB.opcode === I_Type_3) | (hz_WB.opcode === U_Type_1) | (hz_WB.opcode === U_Type_2)
 
   // Helper variables for condition checks
-  val rs1MatchesEX = hz_EX_bool && (hz_EX.rd === io.rs1)
-  val rs2MatchesEX = hz_EX_bool && (hz_EX.rd === io.rs2)
-  val rs1MatchesMEM = hz_MEM_bool && (hz_MEM.rd === io.rs1)
-  val rs2MatchesMEM = hz_MEM_bool && (hz_MEM.rd === io.rs2)
-  val rs1MatchesWB = hz_WB_bool && (hz_WB.rd === io.rs1)
-  val rs2MatchesWB = hz_WB_bool && (hz_WB.rd === io.rs2)
+  //val rs1MatchesEX = hz_EX_bool && (hz_EX.rd === io.rs1)
+  //val rs2MatchesEX = hz_EX_bool && (hz_EX.rd === io.rs2)
+  //val rs1MatchesMEM = hz_MEM_bool && (hz_MEM.rd === io.rs1)
+  //val rs2MatchesMEM = hz_MEM_bool && (hz_MEM.rd === io.rs2)
+  //val rs1MatchesWB = hz_WB_bool && (hz_WB.rd === io.rs1)
+  //val rs2MatchesWB = hz_WB_bool && (hz_WB.rd === io.rs2)
 
   // Default control signal
   io.EX_control := 0.U
 
-  when(rs1MatchesEX || rs2MatchesEX) { // EX stage conditions
-    io.EX_control := MuxCase(4.U, Seq(
-      (rs1MatchesEX && rs2MatchesEX) -> 7.U,                   // EX_rd / EX_rd
-      (rs1MatchesEX && rs2MatchesMEM) -> 10.U,                 // EX_rd / MEM_rd
-      (rs1MatchesEX && rs2MatchesWB) -> 11.U,                  // EX_rd / WB_rd
-      (rs2MatchesEX && rs1MatchesMEM) -> 12.U,                 // MEM_rd / EX_rd
-      (rs2MatchesEX && rs1MatchesWB) -> 13.U,                  // WB_rd / EX_rd
-       rs2MatchesEX -> 1.U                                     // rs1 / EX_rd
-    ))
-  } .elsewhen(rs1MatchesMEM || rs2MatchesMEM) { // MEM stage conditions
-      io.EX_control := MuxCase(5.U, Seq(
-        (rs1MatchesMEM && rs2MatchesMEM) -> 8.U,                // MEM_rd / MEM_rd
-        (rs1MatchesMEM && rs2MatchesWB) -> 14.U,                // MEM_rd / WB_rd
-        (rs2MatchesMEM && rs1MatchesWB) -> 15.U,                // WB_rd / MEM_rd
-         rs2MatchesMEM -> 2.U                                   // rs1 / MEM_rd
-      ))
-    } .elsewhen(rs1MatchesWB || rs2MatchesWB) { // WB stage conditions
-      io.EX_control := MuxCase(6.U, Seq(
-        (rs1MatchesWB && rs2MatchesWB) -> 9.U,                  // WB_rd / WB_rd
-         rs2MatchesWB -> 3.U                                    // rs1 / WB_rd
-      ))
+  // if statements for 4 bit control signal for EX stage
+  when(hz_EX_bool & ((hz_EX.rd === io.rs1) | (hz_EX.rd === io.rs2))) {
+    when((hz_EX.rd === io.rs1) && (hz_EX.rd === io.rs2)) {
+      io.EX_control := 7.U // For EX_rd / EX_rd
+    } .elsewhen(hz_EX.rd === io.rs1) {
+      when(hz_MEM_bool & hz_MEM.rd === io.rs2) {
+        io.EX_control := 10.U // For EX_rd / MEM_rd
+      } .elsewhen(hz_WB_bool & hz_WB.rd === io.rs2) {
+        io.EX_control := 11.U // For EX_rd / WB_rd
+      } .otherwise {
+        io.EX_control := 4.U  // For EX_rd / rs2
+      }
+    } .elsewhen(hz_EX.rd === io.rs2) {
+      when(hz_MEM_bool & hz_MEM.rd === io.rs1) {
+        io.EX_control := 12.U // For MEM_rd / EX_rd
+      } .elsewhen(hz_WB_bool & hz_WB.rd === io.rs1) {
+        io.EX_control := 13.U // For WB_rd / EX_rd
+      } .otherwise {
+        io.EX_control := 1.U // For rs1 / EX_rd
+      }
     }
+  } .elsewhen (hz_MEM_bool & ((hz_MEM.rd === io.rs1) | (hz_MEM.rd === io.rs2))) {
+    when((hz_MEM.rd === io.rs1) & (hz_MEM.rd === io.rs2)) {
+      io.EX_control := 8.U // For MEM_rd / MEM_rd
+    }.elsewhen(hz_MEM.rd === io.rs1) {
+      when(hz_WB_bool & hz_WB.rd === io.rs2) {
+        io.EX_control := 14.U // For MEM_rd / WB_rd
+      }.otherwise {
+        io.EX_control := 5.U // For MEM_rd / rs2
+      }
+    }
+  }.elsewhen(hz_MEM.rd === io.rs2) {
+    when(hz_WB_bool & hz_WB.rd === io.rs1) {
+      io.EX_control := 15.U // For WB_rd / MEM_rd
+    }.otherwise {
+      io.EX_control := 2.U // For rs1 / MEM_rd
+    }
+  } .elsewhen (hz_WB_bool & ((hz_WB.rd === io.rs1) | (hz_WB.rd === io.rs2))) {
+    when((hz_WB.rd === io.rs1) & (hz_WB.rd === io.rs2)) {
+      io.EX_control := 9.U // For WB_rd / WB_rd
+    }.elsewhen(hz_WB.rd === io.rs1) {
+      io.EX_control := 6.U // For WB_rd / rs2
+    }.elsewhen(hz_WB.rd === io.rs2) {
+      io.EX_control := 3.U // For rs1 / WB_rd
+    }
+  } .otherwise {io.EX_control := 0.U} // Base case
 }

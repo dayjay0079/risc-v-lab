@@ -27,17 +27,31 @@ class Stage2_ID(fpga: Boolean) extends Module {
   val rs2 = Wire(UInt(5.W))
   val imm = Wire(SInt(32.W))
 
-  val stall = Wire(Bool())
+  // Stalling logic for input to control module
+  val stall = WireDefault(0.B)
+  val pc = io.pc
+  val instruction = io.instruction
+  val branch_taken = io.branch_taken
+  val pc_prediction = io.pc_prediction
+
   val stall_reg = RegInit(false.B)
-  val instruction = Wire(UInt(32.W))
+  val pc_reg = RegInit(0.U(32.W))
   val instruction_reg = RegInit(0.U(32.W))
-  instruction_reg := Mux(stall_reg, instruction_reg, instruction)
+  val branch_taken_reg = RegInit(false.B)
+  val pc_prediction_reg = RegInit(0.U(32.W))
+
   stall_reg := stall
+  pc_reg := Mux(stall_reg, pc_reg, pc)
+  instruction_reg := Mux(stall_reg, instruction_reg, instruction)
+  branch_taken_reg := Mux(stall_reg, branch_taken_reg, branch_taken)
+  pc_prediction_reg := Mux(stall_reg, pc_prediction_reg, pc_prediction)
 
   // Isolate instruction fields
   val control = Module(new Control())
-  control.io.pc := Mux(stall_reg, io.pc - 4.U, io.pc)
+  control.io.pc := Mux(stall_reg, pc_reg, pc)
   control.io.instruction := Mux(stall_reg, instruction_reg, instruction)
+  control.io.branch_taken := Mux(stall_reg, branch_taken_reg, branch_taken)
+  control.io.pc_prediction := Mux(stall_reg, pc_prediction_reg, pc_prediction)
 
   // Hazard Module
   val hazard = Module(new Hazards())
@@ -46,7 +60,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
   hazard.io.rd := control.io.rd
   hazard.io.ctrl := control.io.ctrl
   stall := hazard.io.stall
-  instruction := io.instruction
 
   // Bundle control values
   val ctrl = Wire(new ControlBus)
@@ -63,9 +76,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
     imm := control.io.imm
     ctrl := control.io.ctrl
   }
-  ctrl.pc := io.pc
-  ctrl.branch_taken := io.branch_taken
-  ctrl.pc_prediction := io.pc_prediction
 
   // Read from registers
   val reg_file = Module(new RegisterFile(fpga))

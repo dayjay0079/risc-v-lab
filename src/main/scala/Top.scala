@@ -54,6 +54,11 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   EX.io.pipeline_vals.rd := ID.io.rd_out
   EX.io.pipeline_vals.ctrl := ID.io.ctrl
 
+  EX.io.data_in_MEM := MEM.io.data_out_forward
+  EX.io.data_in_WB := WB.io.data_out
+  EX.io.EX_control := ID.io.EX_control
+
+
   // Stage 4: Memory access (if necessary)
   MEM.io.data_write := EX.io.data_out_reg2
   MEM.io.data_in := EX.io.data_out_alu

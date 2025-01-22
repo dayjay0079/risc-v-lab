@@ -6,6 +6,9 @@ class Control extends Module{
   val io = IO(new Bundle{
     val pc = Input(UInt(32.W))
     val instruction = Input(UInt(32.W))
+    val branch_taken = Input(Bool())
+    val pc_prediction = Input(UInt(32.W))
+
     val rd = Output(UInt(5.W))
     val rs1 = Output(UInt(5.W))
     val rs2 = Output(UInt(5.W))
@@ -34,7 +37,7 @@ class Control extends Module{
   io.rs1 := rs1
   io.rs2 := rs2
   io.imm := imm
-  io.ctrl.pc := DontCare
+  io.ctrl.pc := io.pc
   io.ctrl.opcode := opcode
   io.ctrl.funct3 := funct3
   io.ctrl.funct7 := funct7
@@ -43,8 +46,8 @@ class Control extends Module{
   io.ctrl.store_type := mem_store_type
   io.ctrl.load_type := mem_load_type
   io.ctrl.mem_to_reg := mem_to_reg
-  io.ctrl.branch_taken := DontCare
-  io.ctrl.pc_prediction := DontCare
+  io.ctrl.branch_taken := io.branch_taken
+  io.ctrl.pc_prediction := io.pc_prediction
 
   //Enumeration of Instruction Types
   object InstructionType extends ChiselEnum {

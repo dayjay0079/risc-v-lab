@@ -24,31 +24,15 @@ sw x28, 32(x1)
 
 #Reset x1
 addi x1, x0, 0
-nop
-nop
-nop
-nop
-
 #Code
 addi x1, x0, 100
 addi x10, x0, 0
-nop
-nop
-nop
 lw x2, 0(x1)
-nop
 loop:
-    nop
-    nop
-    nop
     blt  x2, x0, done
     nop
     add  x10, x10, x2
     addi x1, x1, 4
-    nop
-    nop
-    nop
-    nop
     lw   x2, 0(x1)
     beq  x0, x0 loop
 done:
