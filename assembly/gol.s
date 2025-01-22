@@ -6,23 +6,14 @@ start:
     addi t0, x0, 0b0001 # Bit mesh for button
     addi s10, x0, 0     # Iteration counter
     lw a0, 1025(x0)     # Switches
+    nop
+    nop
+    nop
+    nop
     lw a1, 1026(x0)     # Buttons
-    nop
-    nop
-    nop
-    nop
     sw a0, 1024(x0)    # LEDs
     beq a1, t0, init_exec
-    nop
-    nop
-    nop
-    nop
     jal x0, start
-    nop
-    nop
-    nop
-    nop
-    
 init_exec:
     sw a0, 1024(x0)  # LEDs
     sw s10, 1027(x0) # Seven Segment Display
