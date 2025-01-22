@@ -19,8 +19,10 @@ class BranchPrediction extends Module{
   val J_Type = "b1101111".U     // jal
 
   // Check that last instruction wasn't a branch. If it is, we need a stall
-  val branch_taken_reg = RegInit(false.B)
-  branch_taken_reg := io.branch_taken
+  val branch_taken_reg1 = RegInit(false.B)
+  val branch_taken_reg2 = RegInit(false.B)
+  branch_taken_reg1 := io.branch_taken
+  branch_taken_reg2 := branch_taken_reg1
 
   // Assign opcode
   opcode := io.instruction(6, 0)
@@ -40,10 +42,10 @@ class BranchPrediction extends Module{
   io.stall := false.B
 
   // Branch "prediction" - currently branch is assumed taken
-  when((opcode === B_Type | opcode === J_Type) & !branch_taken_reg) {
+  when((opcode === B_Type | opcode === J_Type) & !branch_taken_reg1) {
     io.pc_prediction := (io.pc.asSInt + imm).asUInt
     io.branch_taken := true.B
-  } .elsewhen((opcode === B_Type | opcode === J_Type) & branch_taken_reg) {
+  } .elsewhen((opcode === B_Type | opcode === J_Type) & (branch_taken_reg1 | branch_taken_reg2)) {
     io.stall := true.B
   }
 }
