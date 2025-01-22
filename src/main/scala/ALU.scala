@@ -70,6 +70,17 @@ class ALU extends Module{
   val var2 = WireDefault(0.S(32.W))
   val I_shift = (funct3 === "x1".U) | (funct3 === "x5".U)
 
+  when(branch_taken & !pc_update_bool) {
+    pc_update_val := (pc.asSInt + 4.S).asUInt
+    io.pc_update_bool := true.B
+    io.flush := true.B
+    io.flush_hazards := true.B
+  } .elsewhen(branch_taken & pc_update_bool) {
+    pc_update_val := pc_prediction + 8.U
+  } .elsewhen(!branch_taken & pc_update_bool) {
+    pc_update_val := (pc.asSInt + imm).asUInt
+  }
+
   // Choose values for calculation
   switch(opcode) {
     is(R_Type) {
@@ -87,21 +98,9 @@ class ALU extends Module{
     is(B_Type) {
       var1 := data1
       var2 := data2
-
-      when(branch_taken & !pc_update_bool) {
-        pc_update_val := (pc.asSInt + 4.S).asUInt
-        io.pc_update_bool := true.B
-        io.flush := true.B
-        io.flush_hazards := true.B
-      } .elsewhen(branch_taken & pc_update_bool) {
-        pc_update_val := pc_prediction + 8.U
-      } .elsewhen(!branch_taken & pc_update_bool) {
-        pc_update_val := (pc.asSInt + imm).asUInt
-      }
     }
     is(J_Type) {
       var1 := pc.asSInt
-      pc_update_val := (pc.asSInt + imm).asUInt
     }
     is(I_Type_3) {
       var1 := pc.asSInt

@@ -43,7 +43,7 @@ class Stage1_IF(program: Seq[Int], fpga: Boolean) extends Module {
   // Stall for two concurrent branches
   val stall_reg = RegInit(false.B)
   stall_reg := branch_predictor.io.stall
-  when(branch_predictor.io.stall | stall_reg) {
+  when(branch_predictor.io.stall) {
     pc := pc_reg.asUInt
   }
 
