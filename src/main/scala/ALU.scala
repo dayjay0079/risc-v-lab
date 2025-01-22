@@ -10,6 +10,7 @@ class ALU extends Module{
     val pc_update_bool = Output(Bool())
     val result = Output(SInt(32.W))
     val flush = Output(Bool())
+    val flush_hazards = Output(Bool())
     val ctrl_nop = Output(new ControlBus)
   })
 
@@ -33,6 +34,7 @@ class ALU extends Module{
   io.pc_update_bool := pc_update_bool
   io.result := result
   io.flush := false.B
+  io.flush_hazards := false.B
 
   pc_update_val := DontCare
   pc_update_bool := 0.B
@@ -73,8 +75,9 @@ class ALU extends Module{
     pc_update_val := (pc.asSInt + 4.S).asUInt
     io.pc_update_bool := true.B
     io.flush := true.B
+    io.flush_hazards := true.B
   } .elsewhen(branch_taken & pc_update_bool) {
-    pc_update_val := pc_prediction + 4.U
+    pc_update_val := pc_prediction + 8.U
   } .elsewhen(!branch_taken & pc_update_bool) {
     pc_update_val := (pc.asSInt + imm).asUInt
   }
@@ -96,6 +99,16 @@ class ALU extends Module{
     is(B_Type) {
       var1 := data1
       var2 := data2
+
+      when(branch_taken & !pc_update_bool) {
+        pc_update_val := (pc.asSInt + 4.S).asUInt
+        io.pc_update_bool := true.B
+        io.flush := true.B
+      } .elsewhen(branch_taken & pc_update_bool) {
+        pc_update_val := pc_prediction + 8.U
+      } .elsewhen(!branch_taken & pc_update_bool) {
+        pc_update_val := (pc.asSInt + imm).asUInt
+      }
     }
     is(J_Type) {
       var1 := pc.asSInt

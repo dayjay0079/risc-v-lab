@@ -47,6 +47,7 @@ class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) 
   ID.io.pc := IF.io.pc_reg
   ID.io.branch_taken := IF.io.branch_taken
   ID.io.pc_prediction := IF.io.pc_prediction
+  ID.io.flush_hazards := EX.io.flush_hazards
 
   // Stage 3: Execute operation/Calculate address
   EX.io.pipeline_vals.data1 := ID.io.data_out1

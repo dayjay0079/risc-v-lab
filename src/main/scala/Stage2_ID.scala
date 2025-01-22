@@ -11,6 +11,7 @@ class Stage2_ID extends Module {
     val write_enable = Input(Bool())
     val branch_taken = Input(Bool())
     val pc_prediction = Input(UInt(32.W))
+    val flush_hazards = Input(Bool())
 
     val data_out1 = Output(SInt(32.W))
     val data_out2 = Output(SInt(32.W))
@@ -58,6 +59,7 @@ class Stage2_ID extends Module {
   hazard.io.rs2 := control.io.rs2
   hazard.io.rd := control.io.rd
   hazard.io.ctrl := control.io.ctrl
+  hazard.io.flush_hazards := io.flush_hazards
   stall := hazard.io.stall
 
   // Bundle control values

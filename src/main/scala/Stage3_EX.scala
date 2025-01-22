@@ -24,6 +24,7 @@ class Stage3_EX extends Module {
     val data_out_reg2 = Output(SInt(32.W))
     val pc_update_bool = Output(Bool())
     val pc_update_val = Output(UInt(32.W))
+    val flush_hazards = Output(Bool())
   })
 
   // Output
@@ -84,5 +85,5 @@ class Stage3_EX extends Module {
   io.data_out_reg2 := RegNext(data_out_reg2)
   io.pc_update_bool := RegNext(ALU.io.pc_update_bool)
   io.pc_update_val := RegNext(ALU.io.pc_update_val)
-
+  io.flush_hazards := RegNext(ALU.io.flush_hazards)
 }

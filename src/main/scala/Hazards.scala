@@ -13,6 +13,7 @@ class Hazards extends Module{
     val rs2 = Input(UInt(5.W))
     val rd = Input(UInt(5.W))
     val ctrl = Input(new ControlBus)
+    val flush_hazards = Input(Bool())
 
     // Outputs
     val ctrl_nop = Output(new ControlBus)
@@ -49,8 +50,12 @@ class Hazards extends Module{
   hz_ID.rd := io.rd
   hz_ID.opcode := io.ctrl.opcode
 
-  val hz_EX = RegNext(hz_ID) // Saving EX info
-  val hz_MEM = RegNext(hz_EX) // MEM info
+  val hz_flush = Wire(new HazardInfo)
+  hz_flush.rd := 0.U
+  hz_flush.opcode := 0.U
+
+  val hz_EX = RegNext(Mux(io.flush_hazards, hz_flush, hz_ID)) // Saving EX info
+  val hz_MEM = RegNext(Mux(io.flush_hazards, hz_flush, hz_EX)) // MEM info
   val hz_WB = RegNext(hz_MEM) // ...
 
   // Stall booleans:
