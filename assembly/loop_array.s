@@ -30,7 +30,7 @@ addi x10, x0, 0
 lw x2, 0(x1)
 loop:
     blt  x2, x0, done
-    nop
+    # This was the nops
     add  x10, x10, x2
     addi x1, x1, 4
     lw   x2, 0(x1)
