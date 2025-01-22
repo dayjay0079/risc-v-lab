@@ -7,21 +7,11 @@ start:
     addi s10, x0, 0     # Iteration counter
     lw a0, 1025(x0)     # Switches
     lw a1, 1026(x0)     # Buttons
-    nop
-    nop
-    nop
-    nop
     sw a0, 1024(x0)    # LEDs
     beq a1, t0, init_exec
     nop
     nop
-    nop
-    nop
     jal x0, start
-    nop
-    nop
-    nop
-    nop
     
 init_exec:
     sw a0, 1024(x0)  # LEDs
@@ -139,12 +129,12 @@ continue:
     nop
     
     # Load waiting period counter 
-    lui s11, 0x5FF
+    #lui s11, 0x5FF
     nop
     nop    
     nop
     nop
-    addi s11, s11, 0xFF
+    addi s11, x0, 0xFF
     
     # Prepare
     addi s10, s10, 1 # Increment iterations

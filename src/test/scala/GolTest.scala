@@ -13,10 +13,9 @@ class GolTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new Top(PROGRAM, MEM_SIZE, FREQ, BAUD, LED_CNT)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       dut.clock.setTimeout(0)
       dut.io.switches.poke("xE770".U)
-      dut.io.buttons.poke("b0101".U)
-      dut.clock.step(1000)
+      dut.clock.step(50)
       dut.io.buttons.poke("b0001".U)
-      dut.clock.step(30000)
+      dut.clock.step(3000)
     }
   }
 }
