@@ -21,17 +21,17 @@ class Hazards extends Module{
     val stall = Output(Bool())
   })
   // NOP ctrl
-  io.ctrl_nop.pc := DontCare
-  io.ctrl_nop.pc_prediction := DontCare
+  io.ctrl_nop.pc := 0.U
+  io.ctrl_nop.pc_prediction := 0.U
   io.ctrl_nop.opcode := "x13".U
   io.ctrl_nop.funct3 := 0.U
   io.ctrl_nop.funct7 := 0.U
   io.ctrl_nop.inst_type := 1.U
-  io.ctrl_nop.store_type := DontCare
-  io.ctrl_nop.load_type := DontCare
-  io.ctrl_nop.mem_to_reg := DontCare
-  io.ctrl_nop.branch_taken := DontCare
-  io.ctrl_nop.write_enable_reg := DontCare
+  io.ctrl_nop.store_type := 0.U
+  io.ctrl_nop.load_type := 0.U
+  io.ctrl_nop.mem_to_reg := 0.U
+  io.ctrl_nop.branch_taken := false.B
+  io.ctrl_nop.write_enable_reg := false.B
 
   // instruction types:
   val R_Type = "b0110011".U // Arithmetic/Logic

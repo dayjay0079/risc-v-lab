@@ -8,6 +8,7 @@ start:
     lw a0, 1025(x0)     # Switches
     lw a1, 1026(x0)     # Buttons
     sw a0, 1024(x0)    # LEDs
+    nop
     beq a1, t0, init_exec
     jal x0, start
 init_exec:
@@ -159,6 +160,7 @@ wait:
     nop
     nop
 done:
+    nop
     jal x0, done
     nop
     nop

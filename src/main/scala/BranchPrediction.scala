@@ -6,6 +6,7 @@ class BranchPrediction extends Module{
   val io = IO(new Bundle{
     val pc = Input(UInt(32.W))
     val instruction = Input(UInt(32.W))
+
     val pc_prediction = Output(UInt(32.W))
     val branch_taken = Output(Bool())
     val stall = Output(Bool())
@@ -20,7 +21,8 @@ class BranchPrediction extends Module{
 
   // Check that last instruction wasn't a branch. If it is, we need a stall
   val branch_taken_reg = RegInit(false.B)
-  branch_taken_reg := io.branch_taken
+  val pc_reg = RegNext(io.instruction)
+  branch_taken_reg := io.branch_taken | RegNext(io.branch_taken)
 
   // Assign opcode
   opcode := io.instruction(6, 0)
@@ -45,5 +47,6 @@ class BranchPrediction extends Module{
     io.branch_taken := true.B
   } .elsewhen((opcode === B_Type | opcode === J_Type) & branch_taken_reg) {
     io.stall := true.B
+    io.pc_prediction := pc_reg
   }
 }

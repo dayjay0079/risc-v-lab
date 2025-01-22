@@ -52,12 +52,10 @@ class Stage3_EX extends Module {
 
   //Flushing logic
   val flush = WireDefault(0.B)
-  val counter = RegInit(0.U(2.W))
+  flush := RegNext(ALU.io.flush)
 
-  when(counter > 0.U && counter < 2.U) {
-    flush := true.B
-  } .otherwise {
-    flush := RegNext(ALU.io.flush)
+  when(ALU.io.flush) {
+    flush := RegNext(true.B)
   }
 
   when(flush) {
@@ -66,15 +64,12 @@ class Stage3_EX extends Module {
     data_out_alu := 0.S
     data_out_reg2 := 0.S
     ctrl := ALU.io.ctrl_nop
-    counter := counter + 1.U
   } .otherwise {
     rd := io.pipeline_vals.rd
     imm := io.pipeline_vals.imm
     data_out_alu := ALU.io.result
     data_out_reg2 := io.pipeline_vals.data2
     ctrl := io.pipeline_vals.ctrl
-
-    counter := 0.U
   }
 
   // Output
