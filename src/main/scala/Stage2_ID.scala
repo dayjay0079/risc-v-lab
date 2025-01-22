@@ -93,10 +93,9 @@ class Stage2_ID(fpga: Boolean) extends Module {
   io.imm := RegNext(imm)
   io.rd_out := RegNext(rd)
   io.ctrl := RegNext(ctrl)
-
-  io.regs := reg_file.io.regs
-
-  // Output for testing
   io.EX_control := RegNext(hazard.io.EX_control)
   io.stall := RegNext(stall)
+
+  // Test-output
+  io.regs := reg_file.io.regs
 }

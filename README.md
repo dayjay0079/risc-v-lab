@@ -1,60 +1,20 @@
-# **02114 - Design of a RISC-V Microprocessor**
+# The addictive processor - $O\pi\Omega$
 
-This repository contains the material for the 3-week course **02114 - Design of a RISC-V Microprocessor** at the Technical University of Denmark (DTU).
+This repository contains an fpga implementation of the RISC-V (base integer instruction set, RV32I) for the 3-week course **02114 - Design of a RISC-V Microprocessor** at the Technical University of Denmark (DTU).
 
-This README file contains all the information related to the course. **Important note: Before starting with the design and implementation (i.e. coding), please read this document top-to-bottom, so you know the overall requirements, expectations, and suggestions.**
 
-Content:
-* [General course information](#general-course-information)
-* [Your RISC-V microprocessor](#your-risc-v-microprocessor)
-* [About peripherals](#about-peripherals)
-* [Suggested work plan](#suggested-work-plan)
-* [When to start with your FPGA board?](#when-to-start-with-your-fpga-board)
-* [Notes, hints, and tips](#notes--hints--and-tips)
-* [Testing and debugging](#testing-and-debugging)
-* [More notes (advanced))](#more-notes-advanced)
 
-## General course information
-This section provides the practical information related to the course, such as aim, learning objectives, group forming, schedule, access to help, exam, etc.
+## Processor description
+We chose to create a 5-stage pipelined RISC-V processor with hazard detection, forwarding and where branches are always assumed as taken.
+
 
 ### Aim
 
-In this course, you will consolidate your knowledge and skills in computer architecture and digital hardware design by:
-- Designing and implementing your **own** RISC-V microprocessor
-- Running **your** processor in your Basys3 board (or an equivalent one)
-
 ### Learning objectives
-
-A student who has met the objectives of the course will be able to:
-- **Apply** the principles of pipelining and **leverage** its benefits in digital system design
-- **Use** the RISC-V architecture, its instruction set, and its implementation in digital systems
-- **Gain** proficiency in Chisel, a hardware construction language used for digital system design
-- **Design** and **implement** each stage of a pipelined RISC-V processor on an FPGA
-- **Use** simulation tools to verify the correctness of digital system designs
-- **Gain** experience in debugging digital system designs
-- **Work** effectively in small teams to design and implement a complex digital system
-- **Integrate** individual designs into a fully functional pipelined RISC-V processor
-- **Evaluate** the performance and quality of the final design based on various metrics
 
 ### Practicalities
 
-Here is some general practical information about the course.
-- The course will start **Monday, January 6th, 2025** at **10:00**
-- The course will be in **Building 324 - Room 070**
-- The room is reserved for the entire 3-week period from 8:00 to 17:00
-- The room and the foyer of Building 324 are suitable for group work
-- The last day of the course is **Friday, January 24th, 2025**, when we will have the exam (see more info below)
-
 ### Teaching and supervision
-
-This is a practical course where you learn-by-doing. We will try to keep frontal teaching (i.e. lectures) to a minimum and we only have one scheduled one presentation on the first day of the course. Other frontal lectures can be scheduled if the need arises.
-
-Overall, we expect that working independently, but we strongly encourage you to seek help whenever needed. In any case, we will have the following supervised sessions:
-
-- Everyday **from 10:00 to 11:00**
-- Everyday **from 14:00 to 15:00**
-
-In addition, we will set up a discussion forum (Discord server) for you to ask questions, share ideas, and collaborate with your peers. The forum will also be actively monitored by the teacher to provide timely assistance. The forum access link will be announced on DTU-Learn.
 
 ### Group forming
 The course work should be carried out in **groups of 4 people** (groups of 2 or 3 are also possible but less preferred). You are free to select your group members. **Groups should be registered as soon as possible in the DTU-Learn group forming facility.** If you experience difficulties forming a group, please contact the teacher.
