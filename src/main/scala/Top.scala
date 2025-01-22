@@ -35,8 +35,9 @@ class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) 
   val WB = Module(new Stage5_WB)
 
   // Stage 1: Instruction Fetch
-  IF.io.pc_update_val := EX.io.pc_update_val
   IF.io.pc_update_bool := EX.io.pc_update_bool
+  IF.io.pc_update_val := EX.io.pc_update_val
+  IF.io.stall := ID.io.stall
 
   // Stage 2: Instruction Decode
   ID.io.instruction := IF.io.instruction
@@ -44,6 +45,8 @@ class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) 
   ID.io.data_in := WB.io.data_out
   ID.io.write_enable := WB.io.write_enable
   ID.io.pc := IF.io.pc_reg
+  ID.io.branch_taken := IF.io.branch_taken
+  ID.io.pc_prediction := IF.io.pc_prediction
 
   // Stage 3: Execute operation/Calculate address
   EX.io.pipeline_vals.data1 := ID.io.data_out1
@@ -51,6 +54,11 @@ class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) 
   EX.io.pipeline_vals.imm := ID.io.imm
   EX.io.pipeline_vals.rd := ID.io.rd_out
   EX.io.pipeline_vals.ctrl := ID.io.ctrl
+
+  EX.io.data_in_MEM := MEM.io.data_out_forward
+  EX.io.data_in_WB := WB.io.data_out
+  EX.io.EX_control := ID.io.EX_control
+
 
   // Stage 4: Memory access (if necessary)
   MEM.io.switches := io.switches

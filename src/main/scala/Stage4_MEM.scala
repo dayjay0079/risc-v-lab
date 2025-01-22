@@ -21,6 +21,7 @@ class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Modu
     val data_out_alu = Output(SInt(32.W))
     val rd_out = Output(UInt(5.W))
     val ctrl_out = Output(new ControlBus)
+    val data_out_forward = Output(SInt(32.W))
   })
 
   val STORE_BYTE = 1.U
@@ -182,6 +183,10 @@ class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Modu
   }
 
   // Output
+  val rd_out = RegNext(io.rd_in)
+  val data_out_alu = RegNext(io.data_in)
+  val ctrl_out = RegNext(io.ctrl_in)
+
   when(RegNext(memory_arbiter.io.valid_mem)) {
     io.data_out_mem := load_data
   } .elsewhen(RegNext(memory_arbiter.io.valid_switches)) {
@@ -194,4 +199,5 @@ class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Modu
   io.data_out_alu := RegNext(io.data_in)
   io.rd_out := RegNext(io.rd_in)
   io.ctrl_out := RegNext(io.ctrl_in)
+  io.data_out_forward := Mux(ctrl_out.mem_to_reg, load_data, data_out_alu)
 }
