@@ -65,7 +65,6 @@ class Stage3_EX extends Module {
     data_out_alu := 0.S
     data_out_reg2 := 0.S
     ctrl := ALU.io.ctrl_nop
-
     counter := counter + 1.U
   } .otherwise {
     rd := io.pipeline_vals.rd
@@ -85,4 +84,5 @@ class Stage3_EX extends Module {
   io.data_out_reg2 := RegNext(data_out_reg2)
   io.pc_update_bool := RegNext(ALU.io.pc_update_bool)
   io.pc_update_val := RegNext(ALU.io.pc_update_val)
+
 }

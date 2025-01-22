@@ -9,10 +9,7 @@ start:
     lw a1, 1026(x0)     # Buttons
     sw a0, 1024(x0)    # LEDs
     beq a1, t0, init_exec
-    nop
-    nop
     jal x0, start
-    
 init_exec:
     sw a0, 1024(x0)  # LEDs
     sw s10, 1027(x0) # Seven Segment Display
@@ -129,12 +126,12 @@ continue:
     nop
     
     # Load waiting period counter 
-    #lui s11, 0x5FF
+    lui s11, 0x5FF
     nop
     nop    
     nop
     nop
-    addi s11, x0, 0xFF
+    addi s11, s11, 0xFF
     
     # Prepare
     addi s10, s10, 1 # Increment iterations

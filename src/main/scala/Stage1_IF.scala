@@ -42,7 +42,8 @@ class Stage1_IF(program: Seq[Int]) extends Module {
 
   // Stall for two concurrent branches
   val stall_reg = RegInit(false.B)
-  when(branch_predictor.io.stall) {
+  stall_reg := branch_predictor.io.stall
+  when(branch_predictor.io.stall | stall_reg) {
     pc := pc_reg.asUInt
   }
 
