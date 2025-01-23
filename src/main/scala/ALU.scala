@@ -29,27 +29,31 @@ class ALU extends Module{
   val pc_update_bool = Wire(Bool())
   val result = Wire(SInt(32.W))
 
+  val flush = WireDefault(false.B)
+  val flush_reg = RegInit(false.B)
+  flush_reg := flush
+  io.flush := flush
+
   io.pc_update_val := pc_update_val
   io.pc_update_bool := pc_update_bool
   io.result := result
-  io.flush := false.B
 
   pc_update_val := 0.U
   pc_update_bool := 0.B
   result := 0.S
 
   // "NOP" ControlBus values
-  io.ctrl_nop.pc := DontCare
-  io.ctrl_nop.pc_prediction := DontCare
+  io.ctrl_nop.pc := 0.U
+  io.ctrl_nop.pc_prediction := 0.U
   io.ctrl_nop.opcode := "x13".U
   io.ctrl_nop.funct3 := 0.U
   io.ctrl_nop.funct7 := 0.U
   io.ctrl_nop.inst_type := 1.U
-  io.ctrl_nop.store_type := DontCare
-  io.ctrl_nop.load_type := DontCare
-  io.ctrl_nop.mem_to_reg := DontCare
-  io.ctrl_nop.branch_taken := DontCare
-  io.ctrl_nop.write_enable_reg := DontCare
+  io.ctrl_nop.store_type := 0.U
+  io.ctrl_nop.load_type := 0.U
+  io.ctrl_nop.mem_to_reg := false.B
+  io.ctrl_nop.branch_taken := false.B
+  io.ctrl_nop.write_enable_reg := false.B
 
 
   // Instruction Types
@@ -88,12 +92,13 @@ class ALU extends Module{
       when(branch_taken & !pc_update_bool) {
         pc_update_val := pc + 4.U
         io.pc_update_bool := true.B
-        io.flush := true.B
+        flush := true.B
       } .elsewhen(branch_taken & pc_update_bool) {
         io.pc_update_bool := false.B
       } .elsewhen(!branch_taken & pc_update_bool) {
         pc_update_val := (pc.asSInt + imm).asUInt
       }
+
     }
     is(J_Type) {
       var1 := pc.asSInt
@@ -166,5 +171,9 @@ class ALU extends Module{
     is(19.U) { //AUIPC
       result := pc.asSInt + imm //(pc + (imm << 12.U).asUInt)(31,0).asSInt
     }
+  }
+  when(flush_reg) {
+    io.result := 0.S
+    io.pc_update_bool := false.B
   }
 }

@@ -47,16 +47,14 @@ class Stage3_EX extends Module {
 
   // ALU
   val ALU = Module(new ALU)
-  ALU.io.input := ALU_input.io.output
+  val flush = WireDefault(0.B)
   data_reg := ALU.io.result
+  ALU.io.input := ALU_input.io.output
+
+
 
   //Flushing logic
-  val flush = WireDefault(0.B)
-  flush := RegNext(ALU.io.flush)
-
-  when(ALU.io.flush) {
-    flush := RegNext(true.B)
-  }
+  flush := ALU.io.flush | RegNext(ALU.io.flush)
 
   when(flush) {
     rd := 0.U
@@ -64,6 +62,7 @@ class Stage3_EX extends Module {
     data_out_alu := 0.S
     data_out_reg2 := 0.S
     ctrl := ALU.io.ctrl_nop
+
   } .otherwise {
     rd := io.pipeline_vals.rd
     imm := io.pipeline_vals.imm
