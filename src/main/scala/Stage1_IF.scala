@@ -17,7 +17,6 @@ class Stage1_IF(program: Seq[Int]) extends Module {
   // Initialize program counter values
   val pc = Wire(UInt(32.W))
   val pc_reg = RegInit(-4.S(32.W))
-  val pc_reg2 = RegNext(pc_reg)
 
   // Initialize instruction memory with given program
   val instruction_memory = Module(new MemoryInstruction(program))
