@@ -8,13 +8,16 @@ start:
     lw a0, 1025(x0)     # Switches
     lw a1, 1026(x0)     # Buttons
     sw a0, 1024(x0)    # LEDs
-    nop
     beq a1, t0, init_exec
     jal x0, start
 init_exec:
     sw a0, 1024(x0)  # LEDs
     sw s10, 1027(x0) # Seven Segment Display
-    beq a0, x0, done    
+    beq a0, x0, done
+    nop
+    nop
+    nop
+    nop    
     slli, a3, a0, 2
     addi a1, x0, 0  # Loop counter
     addi a2, x0, 16 # Loop limit
@@ -23,6 +26,10 @@ init_exec:
     addi x3, x0, 3
     addi x4, x0, 4
     addi a7, x0, 0  # Result
+    nop
+    nop
+    nop
+    nop
     
 exec_turn:
     # Isolate each bit in neighborhood
@@ -152,6 +159,8 @@ wait:
     nop
     nop
 done:
+    nop
+    nop
     nop
     jal x0, done
     nop
