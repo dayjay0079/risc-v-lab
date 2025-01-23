@@ -87,7 +87,6 @@ class ALU extends Module{
     is(B_Type) {
       var1 := data1
       var2 := data2
-
       when(branch_taken & !pc_update_bool) {
         pc_update_val := pc + 4.U
         io.pc_update_bool := true.B
@@ -162,7 +161,6 @@ class ALU extends Module{
       pc_update_bool := var1.asUInt >= var2.asUInt
     }
     is(17.U) { //JAL
-      pc_update_bool := 1.B
       result := pc.asSInt + 4.S
     }
     is(18.U) { //LUI
