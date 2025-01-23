@@ -15,10 +15,13 @@ class Stage5_WB extends Module {
     val data_out = Output(SInt(32.W))
     val rd = Output(UInt(5.W))
     val write_enable = Output(Bool())
+
+    val data_out_hazards = Output(SInt(32.W))
   })
 
   // Output
   io.data_out := Mux(io.pipeline_vals.ctrl.mem_to_reg, io.pipeline_vals.data_in_mem, io.pipeline_vals.data_in_alu)
   io.rd := io.pipeline_vals.rd
   io.write_enable := io.pipeline_vals.ctrl.write_enable_reg
+  io.data_out_hazards := RegNext(Mux(io.pipeline_vals.ctrl.mem_to_reg, io.pipeline_vals.data_in_mem, io.pipeline_vals.data_in_alu))
 }

@@ -57,7 +57,7 @@ class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) 
   EX.io.pipeline_vals.ctrl := ID.io.ctrl
 
   EX.io.data_in_MEM := MEM.io.data_out_forward
-  EX.io.data_in_WB := WB.io.data_out
+  EX.io.data_in_WB := WB.io.data_out_hazards
   EX.io.EX_control := ID.io.EX_control
 
 
