@@ -10,7 +10,7 @@ class PipelineValuesEX extends Bundle {
   val ctrl = new ControlBus
 }
 
-class Stage3_EX(fpga: Boolean) extends Module {
+class Stage3_EX extends Module {
   val io = IO(new Bundle{
     val pipeline_vals = Input(new PipelineValuesEX)
     val data_in_MEM = Input(SInt(32.W))
@@ -47,18 +47,14 @@ class Stage3_EX(fpga: Boolean) extends Module {
 
   // ALU
   val ALU = Module(new ALU)
-  ALU.io.input := ALU_input.io.output
+  val flush = WireDefault(0.B)
   data_reg := ALU.io.result
+  ALU.io.input := ALU_input.io.output
+
+
 
   //Flushing logic
-  val flush = WireDefault(0.B)
-  val counter = RegInit(0.U(2.W))
-
-  when(counter > 0.U && counter < 2.U) {
-    flush := true.B
-  } .otherwise {
-    flush := RegNext(ALU.io.flush)
-  }
+  flush := ALU.io.flush | RegNext(ALU.io.flush)
 
   when(flush) {
     rd := 0.U
@@ -67,15 +63,12 @@ class Stage3_EX(fpga: Boolean) extends Module {
     data_out_reg2 := 0.S
     ctrl := ALU.io.ctrl_nop
 
-    counter := counter + 1.U
   } .otherwise {
     rd := io.pipeline_vals.rd
     imm := io.pipeline_vals.imm
     data_out_alu := ALU.io.result
     data_out_reg2 := io.pipeline_vals.data2
     ctrl := io.pipeline_vals.ctrl
-
-    counter := 0.U
   }
 
   // Output
@@ -86,5 +79,5 @@ class Stage3_EX(fpga: Boolean) extends Module {
   io.data_out_reg2 := RegNext(data_out_reg2)
   io.pc_update_bool := RegNext(ALU.io.pc_update_bool)
   io.pc_update_val := RegNext(ALU.io.pc_update_val)
-  io.flush_hazards := RegNext(ALU.io.flush_hazards)
+  io.flush_hazards := RegNext(ALU.io.flush)
 }

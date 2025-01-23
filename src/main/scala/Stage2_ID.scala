@@ -2,7 +2,7 @@ import chisel3._
 import chisel3.util._
 import lib.ControlBus
 
-class Stage2_ID(fpga: Boolean) extends Module {
+class Stage2_ID extends Module {
   val io = IO(new Bundle {
     val instruction = Input(UInt(32.W))
     val rd_in = Input(UInt(5.W))
@@ -18,8 +18,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
     val imm = Output(SInt(32.W))
     val rd_out = Output(UInt(5.W))
     val ctrl = Output(new ControlBus)
-    val regs = Output(Vec(32, SInt(32.W))) // Only passed for debugging
-    val EX_control = Output(UInt(4.W)) // test output hazards
+    val EX_control = Output(UInt(4.W))
     val stall = Output(Bool())
   })
 
@@ -80,7 +79,7 @@ class Stage2_ID(fpga: Boolean) extends Module {
   }
 
   // Read from registers
-  val reg_file = Module(new RegisterFile(fpga))
+  val reg_file = Module(new RegisterFile)
   reg_file.io.rs1 := rs1
   reg_file.io.rs2 := rs2
 
@@ -95,9 +94,6 @@ class Stage2_ID(fpga: Boolean) extends Module {
   io.imm := RegNext(imm)
   io.rd_out := RegNext(rd)
   io.ctrl := RegNext(ctrl)
-  io.EX_control := RegNext(hazard.io.EX_control)
   io.stall := RegNext(stall)
-
-  // Test-output
-  io.regs := reg_file.io.regs
+  io.EX_control := RegNext(hazard.io.EX_control)
 }

@@ -2,36 +2,37 @@ import chisel3._
 import chisel3.util._
 
 import lib.ReadAssembly
-import lib.peripherals.{MemoryMappedUart, StringStreamer}
+import lib.peripherals.{MemoryMappedLeds, MemoryMappedUart, StringStreamer}
 import lib.peripherals.MemoryMappedUart.UartPins
+import lib.Bus
 
 object Top extends App {
-  val FPGA = false
   val MEM_SIZE = 1024
-  val FREQ = 50000000
+  val FREQ = 100000000
   val BAUD = 9600
-  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/addi5.bin")
+  val LED_CNT = 16
+  val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/gol.bin")
   emitVerilog(
-    new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD),
+    new Top(PROGRAM, MEM_SIZE, FREQ, BAUD, LED_CNT),
     Array("--target-dir", "generated")
   )
 }
 
-class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int) extends Module {
+class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
-    val regs = Output(Vec(32, SInt(32.W)))
-    val instruction = Output(UInt(32.W))
-    val pc = Output(UInt(32.W))
-    val branch = Output(Bool()) //Test val
-    val imm = Output(SInt(32.W))
-
-    val EX_control = Output(UInt(4.W)) // test val
+    val switches = Input(UInt(16.W))
+    val buttons = Input(UInt(4.W))
+    val uart = UartPins()
+    val leds = Output(UInt(led_cnt.W))
+    val sevSeg_value = Output(UInt(8.W))
+    val sevSeg_anode = Output(UInt(4.W))
   })
-  val IF = Module(new Stage1_IF(program, fpga))
-  val ID = Module(new Stage2_ID(fpga))
-  val EX = Module(new Stage3_EX(fpga))
-  val MEM = Module(new Stage4_MEM(fpga, mem_size))
-  val WB = Module(new Stage5_WB(fpga))
+
+  val IF = Module(new Stage1_IF(program))
+  val ID = Module(new Stage2_ID)
+  val EX = Module(new Stage3_EX)
+  val MEM = Module(new Stage4_MEM(mem_size, freq, baud, led_cnt))
+  val WB = Module(new Stage5_WB)
 
   // Stage 1: Instruction Fetch
   IF.io.pc_update_bool := EX.io.pc_update_bool
@@ -56,11 +57,13 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   EX.io.pipeline_vals.ctrl := ID.io.ctrl
 
   EX.io.data_in_MEM := MEM.io.data_out_forward
-  EX.io.data_in_WB := WB.io.data_out
+  EX.io.data_in_WB := WB.io.data_out_hazard
   EX.io.EX_control := ID.io.EX_control
 
 
   // Stage 4: Memory access (if necessary)
+  MEM.io.switches := io.switches
+  MEM.io.buttons := io.buttons
   MEM.io.data_write := EX.io.data_out_reg2
   MEM.io.data_in := EX.io.data_out_alu
   MEM.io.rd_in := EX.io.rd
@@ -72,12 +75,9 @@ class Top(program: Seq[Int], fpga: Boolean, mem_size: Int, freq: Int, baud: Int)
   WB.io.pipeline_vals.rd := MEM.io.rd_out
   WB.io.pipeline_vals.ctrl := MEM.io.ctrl_out
 
-  // Output for testing
-  io.pc := IF.io.pc
-  io.instruction := IF.io.instruction
-  io.regs := ID.io.regs
-  io.branch := EX.io.pc_update_bool
-  io.imm := EX.io.imm
-
-  io.EX_control := ID.io.EX_control
+  // Top output
+  io.uart <> MEM.io.uart
+  io.leds := MEM.io.leds
+  io.sevSeg_value := MEM.io.sevSeg_value
+  io.sevSeg_anode := MEM.io.sevSeg_anode
 }

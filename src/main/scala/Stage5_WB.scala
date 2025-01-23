@@ -9,20 +9,21 @@ class PipelineValuesWB extends Bundle {
   val ctrl = new ControlBus
 }
 
-class Stage5_WB(fpga: Boolean) extends Module {
+class Stage5_WB extends Module {
   val io = IO(new Bundle{
     val pipeline_vals = Input(new PipelineValuesWB)
     val data_out = Output(SInt(32.W))
+    val data_out_hazard = Output(SInt(32.W))
     val rd = Output(UInt(5.W))
     val write_enable = Output(Bool())
   })
 
-  // Pipeline registers
-  val pipeline_regs = Reg(new PipelineValuesWB)
-  pipeline_regs := io.pipeline_vals
+  val data_out = Mux(io.pipeline_vals.ctrl.mem_to_reg, io.pipeline_vals.data_in_mem, io.pipeline_vals.data_in_alu)
 
   // Output
-  io.data_out := Mux(pipeline_regs.ctrl.mem_to_reg, pipeline_regs.data_in_mem, pipeline_regs.data_in_alu)
-  io.rd := pipeline_regs.rd
-  io.write_enable := pipeline_regs.ctrl.write_enable_reg
+  io.rd := io.pipeline_vals.rd
+  io.write_enable := io.pipeline_vals.ctrl.write_enable_reg
+
+  io.data_out := data_out
+  io.data_out_hazard := RegNext(data_out)
 }
