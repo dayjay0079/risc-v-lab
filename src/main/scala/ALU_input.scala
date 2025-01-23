@@ -67,12 +67,12 @@ class ALU_input extends Module{
       output.data2 := io.data_EX
     }
     is(14.U) {
-      output.data1 := io.data_MEM
-      output.data2 := io.data_WB
-    }
-    is(15.U) {
       output.data1 := io.data_WB
       output.data2 := io.data_MEM
+    }
+    is(15.U) {
+      output.data1 := io.data_MEM
+      output.data2 := io.data_WB
     }
   }
 

@@ -80,7 +80,3 @@ wait:
     jal x0, init_exec
 done:
     jal x0, done
-    nop
-    nop
-    nop
-    nop
