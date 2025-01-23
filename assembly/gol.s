@@ -13,11 +13,7 @@ start:
 init_exec:
     sw a0, 1024(x0)  # LEDs
     sw s10, 1027(x0) # Seven Segment Display
-    beq a0, x0, done
-    nop
-    nop
-    nop
-    nop    
+    beq a0, x0, done    
     slli, a3, a0, 2
     addi a1, x0, 0  # Loop counter
     addi a2, x0, 16 # Loop limit
@@ -26,10 +22,6 @@ init_exec:
     addi x3, x0, 3
     addi x4, x0, 4
     addi a7, x0, 0  # Result
-    nop
-    nop
-    nop
-    nop
     
 exec_turn:
     # Isolate each bit in neighborhood

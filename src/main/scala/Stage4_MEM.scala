@@ -199,5 +199,5 @@ class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Modu
   io.data_out_alu := RegNext(io.data_in)
   io.rd_out := RegNext(io.rd_in)
   io.ctrl_out := RegNext(io.ctrl_in)
-  io.data_out_forward := Mux(ctrl_out.mem_to_reg, load_data, data_out_alu)
+  io.data_out_forward := Mux(ctrl_out.mem_to_reg, io.data_out_mem, data_out_alu)
 }
