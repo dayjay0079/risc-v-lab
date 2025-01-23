@@ -5,12 +5,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 class PipelineTest_Algebraic extends AnyFlatSpec with ChiselScalatestTester {
   "Pipeline Algebraic Test" should "pass" in {
-    val FPGA = false
     val MEM_SIZE = 1024
     val FREQ = 50000000
     val BAUD = 9600
+    val LED_CNT = 16
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/algebraic.bin")
-    test(new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    test(new Top(PROGRAM, MEM_SIZE, FREQ, BAUD, LED_CNT)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       while(dut.io.pc.peekInt <= 408) {
         //Initialization
         if(dut.io.pc.peekInt === 28) {

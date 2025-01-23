@@ -26,6 +26,9 @@ class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) 
     val leds = Output(UInt(led_cnt.W))
     val sevSeg_value = Output(UInt(8.W))
     val sevSeg_anode = Output(UInt(4.W))
+
+    val pc = Output(UInt(32.W))
+    val regs = Output(Vec(32, SInt(32.W)))
   })
 
   val IF = Module(new Stage1_IF(program))
@@ -80,4 +83,8 @@ class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) 
   io.leds := MEM.io.leds
   io.sevSeg_value := MEM.io.sevSeg_value
   io.sevSeg_anode := MEM.io.sevSeg_anode
+
+  // Test Output
+  io.pc := IF.io.pc_reg
+  io.regs := ID.io.regs
 }

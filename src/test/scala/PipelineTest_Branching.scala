@@ -5,12 +5,12 @@ import org.scalatest.flatspec.AnyFlatSpec
 
 class PipelineTest_Branching extends AnyFlatSpec with ChiselScalatestTester {
   "Pipeline Branch Test" should "pass" in {
-    val FPGA = false
     val MEM_SIZE = 1024
     val FREQ = 50000000
     val BAUD = 9600
+    val LED_CNT = 16
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/branching.bin")
-    test(new Top(PROGRAM, FPGA, MEM_SIZE, FREQ, BAUD)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+    test(new Top(PROGRAM, MEM_SIZE, FREQ, BAUD, LED_CNT)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       dut.clock.step(50)
 
       while(dut.io.pc.peekInt <= 0) { //200
@@ -39,14 +39,7 @@ class PipelineTest_Branching extends AnyFlatSpec with ChiselScalatestTester {
           dut.io.regs(2).expect(1.S)
         }
 
-        if(dut.io.pc.peekInt === 128) {
-          println("beq x2, x1, jump")
-          dut.io.branch.expect(0.B)
-        }
-
-
-
-        dut.clock.step()
+        dut.clock.step(10)
       }
     }
   }

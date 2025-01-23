@@ -10,6 +10,7 @@ class RegisterFile extends Module {
     val write_enable = Input(Bool())
     val data1 = Output(SInt(32.W))
     val data2 = Output(SInt(32.W))
+    val regs = Output(Vec(32, SInt(32.W))) //Test
   })
 
   // Registers
@@ -23,4 +24,7 @@ class RegisterFile extends Module {
   when (io.rd =/= 0.U && io.write_enable) {
     regs(io.rd) := io.data_in
   }
+
+  // Test Output
+  io.regs := regs
 }
