@@ -2,15 +2,15 @@
 # A cell is born if it has 2 or 3 Y-neighbors alive
 # A living cell survives if it has 2 or 4 Y-neighbors
 
+addi t0, x0, 0b0001 # Bit mesh for buttons
+addi s10, x0, 0     # Iteration counter
+
 start:
-    addi t0, x0, 0b0001 # Bit mesh for button
-    addi s10, x0, 0     # Iteration counter
     lw a0, 1025(x0)     # Switches
     lw a1, 1026(x0)     # Buttons
     nop
     nop
-    nop
-    nop
+    sw s10, 1027(x0)   # Seven Segment Display
     sw a0, 1024(x0)    # LEDs
     beq a1, t0, init_exec
     nop
@@ -144,7 +144,7 @@ continue:
     nop    
     nop
     nop
-    addi s11, s11, 0xFF
+    addi s11, s11, 0x7FF
     
     # Prepare
     addi s10, s10, 1 # Increment iterations
