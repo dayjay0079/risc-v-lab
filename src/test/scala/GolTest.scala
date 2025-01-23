@@ -12,7 +12,7 @@ class GolTest extends AnyFlatSpec with ChiselScalatestTester {
     val PROGRAM: Seq[Int] = ReadAssembly.readBin("assembly/gol.bin")
     test(new Top(PROGRAM, MEM_SIZE, FREQ, BAUD, LED_CNT)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       dut.clock.setTimeout(0)
-      dut.io.switches.poke("xE770".U)
+      dut.io.switches.poke("x5555".U)
       dut.clock.step(50)
       dut.io.buttons.poke("b0001".U)
       dut.clock.step(1000)

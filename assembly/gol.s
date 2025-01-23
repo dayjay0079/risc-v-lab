@@ -66,8 +66,7 @@ continue:
     blt a1, a2, exec_turn # Repeat if end is not reached
     
     # Load waiting period counter 
-    lui s11, 0x5FF
-    addi s11, s11, 0xFF
+    li s11, 0xFF
     
     # Prepare
     addi s10, s10, 1 # Increment iterations
@@ -80,3 +79,7 @@ wait:
     jal x0, init_exec
 done:
     jal x0, done
+    nop
+    nop
+    nop
+    nop

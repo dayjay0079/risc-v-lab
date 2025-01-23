@@ -17,12 +17,8 @@ class Stage5_WB extends Module {
     val write_enable = Output(Bool())
   })
 
-  // Pipeline registers
-  val pipeline_regs = Reg(new PipelineValuesWB)
-  pipeline_regs := io.pipeline_vals
-
   // Output
-  io.data_out := Mux(pipeline_regs.ctrl.mem_to_reg, pipeline_regs.data_in_mem, pipeline_regs.data_in_alu)
-  io.rd := pipeline_regs.rd
-  io.write_enable := pipeline_regs.ctrl.write_enable_reg
+  io.data_out := Mux(io.pipeline_vals.ctrl.mem_to_reg, io.pipeline_vals.data_in_mem, io.pipeline_vals.data_in_alu)
+  io.rd := io.pipeline_vals.rd
+  io.write_enable := io.pipeline_vals.ctrl.write_enable_reg
 }
