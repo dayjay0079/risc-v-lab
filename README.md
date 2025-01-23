@@ -1,5 +1,5 @@
 # **02114 - Design of a RISC-V Microprocessor**
-## O$\pi\Omega$ - *The highly addictive processor*
+## OpiOhm - *The highly addictive processor*
 
 ### Implementation on FPGA
 After writing and assembling the desired program, the path to the `.bin` file has to be set in `/src/main/scala/Top.scala` on line 14.
