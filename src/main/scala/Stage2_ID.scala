@@ -9,8 +9,8 @@ class Stage2_ID extends Module {
     val data_in = Input(SInt(32.W))
     val pc = Input(UInt(32.W))
     val write_enable = Input(Bool())
-    val branch_taken = Input(Bool())
-    val pc_prediction = Input(UInt(32.W))
+    //val branch_taken = Input(Bool())
+    //val pc_prediction = Input(UInt(32.W))
     val flush_hazards = Input(Bool())
 
     val data_out1 = Output(SInt(32.W))
@@ -31,27 +31,27 @@ class Stage2_ID extends Module {
   val stall = WireDefault(0.B)
   val pc = io.pc
   val instruction = io.instruction
-  val branch_taken = io.branch_taken
-  val pc_prediction = io.pc_prediction
+  //val branch_taken = io.branch_taken
+  //val pc_prediction = io.pc_prediction
 
   val stall_reg = RegInit(false.B)
   val pc_reg = RegInit(0.U(32.W))
   val instruction_reg = RegInit(0.U(32.W))
-  val branch_taken_reg = RegInit(false.B)
-  val pc_prediction_reg = RegInit(0.U(32.W))
+  //val branch_taken_reg = RegInit(false.B)
+  //val pc_prediction_reg = RegInit(0.U(32.W))
 
   stall_reg := stall
   pc_reg := Mux(stall_reg, pc_reg, pc)
   instruction_reg := Mux(stall_reg, instruction_reg, instruction)
-  branch_taken_reg := Mux(stall_reg, branch_taken_reg, branch_taken)
-  pc_prediction_reg := Mux(stall_reg, pc_prediction_reg, pc_prediction)
+  //branch_taken_reg := Mux(stall_reg, branch_taken_reg, branch_taken)
+  //pc_prediction_reg := Mux(stall_reg, pc_prediction_reg, pc_prediction)
 
   // Isolate instruction fields
   val control = Module(new Control())
   control.io.pc := Mux(stall_reg, pc_reg, pc)
   control.io.instruction := Mux(stall_reg, instruction_reg, instruction)
-  control.io.branch_taken := Mux(stall_reg, branch_taken_reg, branch_taken)
-  control.io.pc_prediction := Mux(stall_reg, pc_prediction_reg, pc_prediction)
+  //control.io.branch_taken := Mux(stall_reg, branch_taken_reg, branch_taken)
+  //control.io.pc_prediction := Mux(stall_reg, pc_prediction_reg, pc_prediction)
 
   // Hazard Module
   val hazard = Module(new Hazards())

@@ -22,7 +22,7 @@ class Hazards extends Module{
   })
   // NOP ctrl
   io.ctrl_nop.pc := 0.U
-  io.ctrl_nop.pc_prediction := 0.U
+  //io.ctrl_nop.pc_prediction := 0.U
   io.ctrl_nop.opcode := "x13".U
   io.ctrl_nop.funct3 := 0.U
   io.ctrl_nop.funct7 := 0.U
@@ -30,7 +30,7 @@ class Hazards extends Module{
   io.ctrl_nop.store_type := 0.U
   io.ctrl_nop.load_type := 0.U
   io.ctrl_nop.mem_to_reg := 0.U
-  io.ctrl_nop.branch_taken := false.B
+  //io.ctrl_nop.branch_taken := false.B
   io.ctrl_nop.write_enable_reg := false.B
 
   // instruction types:
@@ -73,18 +73,16 @@ class Hazards extends Module{
     io.stall := true.B
   }
 
+  // Stall IF twice for Branching (not branch-prediction compatible)
+  when(hz_EX.opcode === B_Type) {
+    io.stall := true.B
+    stall_counter := 1.U
+  }
+
   // placeholder booleans
   val hz_EX_bool = (hz_EX.opcode === R_Type) | (hz_EX.opcode === I_Type_1) | (hz_EX.opcode === I_Type_2) | (hz_EX.opcode === I_Type_3) | (hz_EX.opcode === U_Type_1) | (hz_EX.opcode === U_Type_2)
   val hz_MEM_bool = (hz_MEM.opcode === R_Type) | (hz_MEM.opcode === I_Type_1) | (hz_MEM.opcode === I_Type_2) | (hz_MEM.opcode === I_Type_3) | (hz_MEM.opcode === U_Type_1) | (hz_MEM.opcode === U_Type_2)
   val hz_WB_bool = (hz_WB.opcode === R_Type) | (hz_WB.opcode === I_Type_1) | (hz_WB.opcode === I_Type_2) | (hz_WB.opcode === I_Type_3) | (hz_WB.opcode === U_Type_1) | (hz_WB.opcode === U_Type_2)
-
-  // Helper variables for condition checks
-  //val rs1MatchesEX = hz_EX_bool && (hz_EX.rd === io.rs1)
-  //val rs2MatchesEX = hz_EX_bool && (hz_EX.rd === io.rs2)
-  //val rs1MatchesMEM = hz_MEM_bool && (hz_MEM.rd === io.rs1)
-  //val rs2MatchesMEM = hz_MEM_bool && (hz_MEM.rd === io.rs2)
-  //val rs1MatchesWB = hz_WB_bool && (hz_WB.rd === io.rs1)
-  //val rs2MatchesWB = hz_WB_bool && (hz_WB.rd === io.rs2)
 
   // Default control signal
   io.EX_control := 0.U

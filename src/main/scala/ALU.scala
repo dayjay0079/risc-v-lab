@@ -10,7 +10,6 @@ class ALU extends Module{
     val pc_update_bool = Output(Bool())
     val result = Output(SInt(32.W))
     val flush = Output(Bool())
-    val flush_hazards = Output(Bool())
     val ctrl_nop = Output(new ControlBus)
   })
 
@@ -23,8 +22,8 @@ class ALU extends Module{
   val data1 = io.input.data1
   val data2 = io.input.data2
 
-  val branch_taken = io.input.ctrl.branch_taken
-  val pc_prediction = io.input.ctrl.pc_prediction
+  //val branch_taken = io.input.ctrl.branch_taken
+  //val pc_prediction = io.input.ctrl.pc_prediction
 
   val pc_update_val = Wire(UInt(32.W))
   val pc_update_bool = Wire(Bool())
@@ -34,15 +33,15 @@ class ALU extends Module{
   io.pc_update_bool := pc_update_bool
   io.result := result
   io.flush := false.B
-  io.flush_hazards := false.B
+  //io.flush_hazards := false.B
 
-  pc_update_val := DontCare
+  pc_update_val := 0.U
   pc_update_bool := 0.B
   result := 0.S
 
   // "NOP" ControlBus values
   io.ctrl_nop.pc := DontCare
-  io.ctrl_nop.pc_prediction := DontCare
+  //io.ctrl_nop.pc_prediction := DontCare
   io.ctrl_nop.opcode := "x13".U
   io.ctrl_nop.funct3 := 0.U
   io.ctrl_nop.funct7 := 0.U
@@ -50,7 +49,7 @@ class ALU extends Module{
   io.ctrl_nop.store_type := DontCare
   io.ctrl_nop.load_type := DontCare
   io.ctrl_nop.mem_to_reg := DontCare
-  io.ctrl_nop.branch_taken := DontCare
+  //io.ctrl_nop.branch_taken := DontCare
   io.ctrl_nop.write_enable_reg := DontCare
 
 
@@ -70,22 +69,6 @@ class ALU extends Module{
   val var2 = WireDefault(0.S(32.W))
   val I_shift = (funct3 === "x1".U) | (funct3 === "x5".U)
 
-  // BAT logic
-  pc_update_val := 0.U
-
-  when(opcode === B_Type | opcode === J_Type) {
-    when(branch_taken & !pc_update_bool) {
-      pc_update_val := (pc.asSInt + 4.S).asUInt
-      io.pc_update_bool := true.B
-      io.flush := true.B
-      io.flush_hazards := true.B
-    } .elsewhen(branch_taken & pc_update_bool) {
-      pc_update_val := pc_prediction + 4.U
-    } .elsewhen(!branch_taken & pc_update_bool) {
-      pc_update_val := (pc.asSInt + imm).asUInt
-    }
-  }
-
   // Choose values for calculation
   switch(opcode) {
     is(R_Type) {
@@ -103,9 +86,30 @@ class ALU extends Module{
     is(B_Type) {
       var1 := data1
       var2 := data2
+
+      when(pc_update_bool) {
+        pc_update_val := (pc.asSInt + imm).asUInt
+      } .otherwise {
+        io.pc_update_bool := true.B
+        //io.flush := true.B
+        pc_update_val := pc + 4.U
+      }
+      /*
+      when(branch_taken & !pc_update_bool) {
+        pc_update_val := (pc.asSInt + 4.S).asUInt
+        io.pc_update_bool := true.B
+        io.flush := true.B
+        io.flush_hazards := true.B
+      } .elsewhen(branch_taken & pc_update_bool) {
+        pc_update_val := pc_prediction + 8.U
+      } .elsewhen(!branch_taken & pc_update_bool) {
+        pc_update_val := (pc.asSInt + imm).asUInt
+      }
+       */
     }
     is(J_Type) {
       var1 := pc.asSInt
+      pc_update_val := (pc.asSInt + imm).asUInt
     }
     is(I_Type_3) {
       var1 := pc.asSInt

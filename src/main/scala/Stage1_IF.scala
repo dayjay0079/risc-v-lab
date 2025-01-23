@@ -10,8 +10,8 @@ class Stage1_IF(program: Seq[Int]) extends Module {
     val instruction = Output(UInt(32.W))
     val pc_reg = Output(UInt(32.W))
     val pc = Output(UInt(32.W)) // Only passed for debugging
-    val branch_taken = Output(Bool())
-    val pc_prediction = Output(UInt(32.W))
+    //val branch_taken = Output(Bool())
+    //val pc_prediction = Output(UInt(32.W))
   })
 
   // Initialize program counter values
@@ -23,7 +23,7 @@ class Stage1_IF(program: Seq[Int]) extends Module {
   val instruction_memory = Module(new MemoryInstruction(program))
 
   // Branch "prediction" currently as "branch always taken"
-  val branch_predictor = Module(new BranchPrediction)
+  //val branch_predictor = Module(new BranchPrediction)
 
   // Set up program counter circuit
   pc_reg := pc.asSInt
@@ -31,19 +31,19 @@ class Stage1_IF(program: Seq[Int]) extends Module {
   // Read instruction
   instruction_memory.io.pc := pc
 
-  val stall_reg = RegInit(false.B)
-  stall_reg := branch_predictor.io.stall
-  branch_predictor.io.pc := pc_reg.asUInt
-  branch_predictor.io.instruction := instruction_memory.io.instruction
+  //val stall_reg = RegInit(false.B)
+  //stall_reg := branch_predictor.io.stall
+  //ranch_predictor.io.pc := pc_reg.asUInt
+  //branch_predictor.io.instruction := instruction_memory.io.instruction
   io.instruction := instruction_memory.io.instruction
   when(io.pc_update_bool) {
     pc := io.pc_update_val
-  } .elsewhen(branch_predictor.io.stall | stall_reg) { // Stall for two concurrent branches
-    pc := branch_predictor.io.pc_prediction
+  //} .elsewhen(branch_predictor.io.stall | stall_reg) { // Stall for two concurrent branches
+    //pc := branch_predictor.io.pc_prediction
   } .elsewhen(io.stall) {
     pc := pc_reg.asUInt
-  } .elsewhen(branch_predictor.io.branch_taken) { // Branch Prediction
-    pc := branch_predictor.io.pc_prediction
+  //} .elsewhen(branch_predictor.io.branch_taken) { // Branch Prediction
+  //  pc := branch_predictor.io.pc_prediction
   } .otherwise {
     pc := (pc_reg + 4.S).asUInt
 
@@ -53,8 +53,8 @@ class Stage1_IF(program: Seq[Int]) extends Module {
 
   io.pc := pc
   io.pc_reg := pc_reg.asUInt
-  io.branch_taken := branch_predictor.io.branch_taken
-  io.pc_prediction := branch_predictor.io.pc_prediction
+  //io.branch_taken := branch_predictor.io.branch_taken
+  //io.pc_prediction := branch_predictor.io.pc_prediction
 
   // Initialization delay
   val init_reg = RegInit(0.U(3.W))
