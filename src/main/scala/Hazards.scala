@@ -78,14 +78,6 @@ class Hazards extends Module{
   val hz_MEM_bool = (hz_MEM.opcode === R_Type) | (hz_MEM.opcode === I_Type_1) | (hz_MEM.opcode === I_Type_2) | (hz_MEM.opcode === I_Type_3) | (hz_MEM.opcode === U_Type_1) | (hz_MEM.opcode === U_Type_2)
   val hz_WB_bool = (hz_WB.opcode === R_Type) | (hz_WB.opcode === I_Type_1) | (hz_WB.opcode === I_Type_2) | (hz_WB.opcode === I_Type_3) | (hz_WB.opcode === U_Type_1) | (hz_WB.opcode === U_Type_2)
 
-  // Helper variables for condition checks
-  //val rs1MatchesEX = hz_EX_bool && (hz_EX.rd === io.rs1)
-  //val rs2MatchesEX = hz_EX_bool && (hz_EX.rd === io.rs2)
-  //val rs1MatchesMEM = hz_MEM_bool && (hz_MEM.rd === io.rs1)
-  //val rs2MatchesMEM = hz_MEM_bool && (hz_MEM.rd === io.rs2)
-  //val rs1MatchesWB = hz_WB_bool && (hz_WB.rd === io.rs1)
-  //val rs2MatchesWB = hz_WB_bool && (hz_WB.rd === io.rs2)
-
   // Default control signal
   io.EX_control := 0.U
 
