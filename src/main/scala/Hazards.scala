@@ -107,18 +107,18 @@ class Hazards extends Module{
       io.EX_control := 8.U // For MEM_rd / MEM_rd
     }.elsewhen(hz_MEM.rd === io.rs1) {
       when(hz_WB_bool & hz_WB.rd === io.rs2) {
-        io.EX_control := 14.U // For MEM_rd / WB_rd
+        io.EX_control := 15.U // For MEM_rd / WB_rd
       }.otherwise {
         io.EX_control := 5.U // For MEM_rd / rs2
       }
+    }.elsewhen(hz_MEM.rd === io.rs2) {
+      when(hz_WB_bool & hz_WB.rd === io.rs1) {
+        io.EX_control := 14.U // For WB_rd / MEM_rd
+      }.otherwise {
+        io.EX_control := 2.U // For rs1 / MEM_rd
+      }
     }
-  }.elsewhen(hz_MEM.rd === io.rs2) {
-    when(hz_WB_bool & hz_WB.rd === io.rs1) {
-      io.EX_control := 15.U // For WB_rd / MEM_rd
-    }.otherwise {
-      io.EX_control := 2.U // For rs1 / MEM_rd
-    }
-  } .elsewhen (hz_WB_bool & ((hz_WB.rd === io.rs1) | (hz_WB.rd === io.rs2))) {
+  }.elsewhen (hz_WB_bool & ((hz_WB.rd === io.rs1) | (hz_WB.rd === io.rs2))) {
     when((hz_WB.rd === io.rs1) & (hz_WB.rd === io.rs2)) {
       io.EX_control := 9.U // For WB_rd / WB_rd
     }.elsewhen(hz_WB.rd === io.rs1) {
@@ -126,5 +126,5 @@ class Hazards extends Module{
     }.elsewhen(hz_WB.rd === io.rs2) {
       io.EX_control := 3.U // For rs1 / WB_rd
     }
-  } .otherwise {io.EX_control := 0.U} // Base case
+  }
 }
