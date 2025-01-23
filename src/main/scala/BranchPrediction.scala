@@ -40,7 +40,7 @@ class BranchPrediction extends Module{
   io.stall := false.B
 
   // Branch "prediction" - currently branch is assumed taken
-  when((opcode === B_Type | opcode === J_Type) & !branch_taken_reg) {
+  when(opcode === B_Type & !branch_taken_reg) {
     io.pc_prediction := (io.pc.asSInt + imm).asUInt
     io.branch_taken := true.B
   } .elsewhen((opcode === B_Type | opcode === J_Type) & branch_taken_reg) {
