@@ -65,8 +65,8 @@ continue:
     srli a3, a3, 1 # Shift the entire input right
     blt a1, a2, exec_turn # Repeat if end is not reached
     
-    # Load waiting period counter 
-    li s11, 0xFF
+    # Load waiting period counter
+    li s11, 25000000
     
     # Prepare
     addi s10, s10, 1 # Increment iterations
