@@ -183,7 +183,6 @@ class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Modu
   }
 
   // Output
-  val rd_out = RegNext(io.rd_in)
   val data_out_alu = RegNext(io.data_in)
   val ctrl_out = RegNext(io.ctrl_in)
 
@@ -196,8 +195,8 @@ class Stage4_MEM(mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Modu
   } .otherwise {
     io.data_out_mem := 0.S
   }
-  io.data_out_alu := io.data_in
-  io.rd_out := io.rd_in
-  io.ctrl_out := io.ctrl_in
+  io.data_out_alu := data_out_alu
+  io.rd_out := RegNext(io.rd_in)
+  io.ctrl_out := ctrl_out
   io.data_out_forward := Mux(ctrl_out.mem_to_reg, io.data_out_mem, data_out_alu)
 }

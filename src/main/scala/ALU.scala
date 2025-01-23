@@ -10,7 +10,6 @@ class ALU extends Module{
     val pc_update_bool = Output(Bool())
     val result = Output(SInt(32.W))
     val flush = Output(Bool())
-    val flush_hazards = Output(Bool())
     val ctrl_nop = Output(new ControlBus)
   })
 
@@ -34,7 +33,6 @@ class ALU extends Module{
   io.pc_update_bool := pc_update_bool
   io.result := result
   io.flush := false.B
-  io.flush_hazards := false.B
 
   pc_update_val := 0.U
   pc_update_bool := 0.B
@@ -91,7 +89,6 @@ class ALU extends Module{
         pc_update_val := pc + 4.U
         io.pc_update_bool := true.B
         io.flush := true.B
-        io.flush_hazards := true.B
       } .elsewhen(branch_taken & pc_update_bool) {
         io.pc_update_bool := false.B
       } .elsewhen(!branch_taken & pc_update_bool) {
