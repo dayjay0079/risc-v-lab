@@ -71,6 +71,8 @@ class Hazards extends Module{
   // Stall ID and IF once for load-use hazard
   when(hz_EX.opcode === I_Type_2 && (hz_EX.rd === io.rs1 || hz_EX.rd === io.rs2)) {
     io.stall := true.B
+    hz_ID.opcode := 0.U
+    hz_ID.rd := 0.U
   }
 
   // placeholder booleans
