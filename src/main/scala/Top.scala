@@ -20,6 +20,9 @@ object Top extends App {
 
 class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) extends Module {
   val io = IO(new Bundle{
+    val regs = Output(Vec(32, SInt(32.W)))
+    val pc = Output(UInt(32.W))
+
     val switches = Input(UInt(16.W))
     val buttons = Input(UInt(4.W))
     val uart = UartPins()
@@ -80,4 +83,8 @@ class Top(program: Seq[Int], mem_size: Int, freq: Int, baud: Int, led_cnt: Int) 
   io.leds := MEM.io.leds
   io.sevSeg_value := MEM.io.sevSeg_value
   io.sevSeg_anode := MEM.io.sevSeg_anode
+
+  // Test output
+  io.regs := ID.io.regs
+  io.pc := IF.io.pc_reg
 }

@@ -20,6 +20,8 @@ class Stage2_ID extends Module {
     val ctrl = Output(new ControlBus)
     val EX_control = Output(UInt(4.W))
     val stall = Output(Bool())
+
+    val regs = Output(Vec(32, SInt(32.W)))
   })
 
   val rd = Wire(UInt(5.W))
@@ -96,4 +98,6 @@ class Stage2_ID extends Module {
   io.ctrl := RegNext(ctrl)
   io.stall := RegNext(stall)
   io.EX_control := RegNext(hazard.io.EX_control)
+
+  io.regs := reg_file.io.regs
 }

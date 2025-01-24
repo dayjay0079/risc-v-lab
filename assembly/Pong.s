@@ -10,7 +10,7 @@ sw x5, 0(x8)                # Store the value of x5 to the LED output
 
 start:
     lw x2, 1026(x0) # Get user input
-    nop
+    
     andi x2, x2, 0b0100
     beq x2, x0, start
 
@@ -24,8 +24,8 @@ loop:	# Write the current ball position to LEDs
     delay:
         addi x28, x28, -1
         bnez x28, delay
-        nop
-        nop
+        
+        
 
         # Check button input
         lw x29, 0(x9)          # Load button input state into x29
@@ -39,15 +39,15 @@ move_left:
     and x31, x5, x30        	# Check if ball is in the leftmost three spots
     andi x30, x29, 0b1000   	# Check left player button (4th bit)
     beq x31, x0, check_bounds_L	# If not in the leftmost three spots, check bounds
-    nop
-    nop
-    nop
-    nop
+    
+    
+    
+    
     bne x30, x0, continue_game 	# If button pressed, continue game, otherwise continue to "check_bounds_L"
 
 check_bounds_L:
-    nop
-    nop
+    
+    
     blt x7, x5, right_win		# If ball reaches past the leftmost position, right player wins
     jal loop
 
@@ -57,32 +57,32 @@ move_right:
     and x31, x5, x30        	# Check if ball is in the rightmost three spots
     andi x30, x29, 0b10     	# Check right player button (2nd bit)
     beq x31, x0, check_bounds_R	# If not in the rightmost three spots, check bounds
-    nop
-    nop
-    nop
-    nop
+    
+    
+    
+    
     bne x30, x0, continue_game 	# If button pressed, continue game, otherwise continue to "check_bounds_R"
 
 check_bounds_R:
-    nop
-    nop
+    
+    
     beq x5, zero, left_win      # If ball reaches the rightmost position, left player wins
     jal loop
 
 left_win:
     li x5, 0b1110000000000000	# Light up the LEDs on the right side for the left player win
-    nop
-    nop
-    nop
-    nop
+    
+    
+    
+    
     sw x5, 0(x8)
     jal end
 
 right_win:
     li x5, 0b0000000000000111	# Light up the LEDs on the left side for the right player win
-    nop
-    nop
-    nop
+    
+    
+    
     sw x5, 0(x8)
     jal end
 
