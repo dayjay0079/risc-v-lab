@@ -98,7 +98,6 @@ class ALU extends Module{
       } .elsewhen(!branch_taken & pc_update_bool) {
         pc_update_val := (pc.asSInt + imm).asUInt
       }
-
     }
     is(J_Type) {
       var1 := pc.asSInt
