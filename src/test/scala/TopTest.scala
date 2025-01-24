@@ -13,7 +13,7 @@ class TopTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new Top(PROGRAM, MEM_SIZE, FREQ, BAUD, LED_CNT)).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       dut.clock.setTimeout(0)
       dut.clock.step(100)
-      dut.io.buttons.poke("b0101".U)
+      dut.io.buttons.poke("b0100".U)
       dut.clock.step(2000)
     }
   }
